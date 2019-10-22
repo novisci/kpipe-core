@@ -1,4 +1,3 @@
-var wtf = require('wtfnode')
 const Reader = require('..').Reader
 
 const streamTypes = ['fs', 's3', 'kafka', 'stdio']

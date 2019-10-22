@@ -157,7 +157,6 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fu
       console.debug('STREAM event: close')
       isEnded = true
       disconnect(() => {})
-      // require('wtfnode').dump()
     })
 
     stream.on('end', () => {
