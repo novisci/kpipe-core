@@ -30,16 +30,6 @@ Within the project are additional scripts used to provision AWS EC2 instances as
 | `reader/fs` | readable | buffers | | |
 | `reader/s3` | readable | buffers | | |
 | `reader/kafka` | readable | lines | | |
-| `transform/gunzip` | duplex | buffers | | |
-| `transform/delineate` | duplex | buffers | lines | _Split buffer on newlines_ |
-| `transform/jsonparse` | duplex | lines | objects | _JSON => object_ |
-| `transform/compact` | duplex | objects | objects | _Convert objects to arrays of values_ |
-| `transform/head` | duplex | lines | lines | _Only process first N lines_ |
-| `transform/progress` | duplex | objects<br/>buffer | objects<br/>buffer | _Emit `.` to stderr for every 10k objects <br/> Emit `.` to stderr for every 10k `\n` (newlines)_ |
-| `transform/value` | duplex | objects | lines | _Extract object value property as a string_ |
-| `transform/jsonstringify` | duplex | objects | lines | _object => JSON_ |
-| `transform/lineate` | duplex | lines | buffers | _Join lines with newlines_ |
-| `transform/gzip` | duplex | | buffers | |
 | `writer/kafka` | writable | | lines | |
 | `writer/s3` | writable | | buffers | |
 | `writer/fs` | writable | | buffers | |
