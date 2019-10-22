@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.510.0",
-    "dotenv": "^8.1.0",
     "node-rdkafka": "^2.7.1-2",
     "uid-safe": "^2.1.5",
     "wtfnode": "^0.8.0"
