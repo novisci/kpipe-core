@@ -56,7 +56,7 @@ module.exports = function (options) {
     console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     s3.upload(params, {
-      queueSize: 4,
+      queueSize: 1,
       partSize: 5 * 1024 * 1024
     })
       // .on('httpUploadProgress', (progress) => {
