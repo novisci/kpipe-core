@@ -8,7 +8,7 @@ module.exports = function (options) {
   }
 
   var s3 = new AWS.S3({
-    apiVersion: '2006-03-01',
+    apiVersion: '2017-08-08',
     region: options.region
   })
 
@@ -56,7 +56,7 @@ module.exports = function (options) {
     console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     s3.upload(params, {
-      queueSize: 1,
+      queueSize: 10,
       partSize: 5 * 1024 * 1024
     })
       // .on('httpUploadProgress', (progress) => {

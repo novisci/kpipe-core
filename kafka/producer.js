@@ -12,7 +12,7 @@ const stats = {}
 /**
  * 
  */
-async function _connect ({ brokers, debug }) {
+async function _connect ({ brokers, debug, ...options }) {
   if (producer) {
     return producerReady
   }
@@ -21,7 +21,8 @@ async function _connect ({ brokers, debug }) {
 
   const opts = {
     'client.id': 'dpipe',
-    'metadata.broker.list': brokers
+    'metadata.broker.list': brokers,
+    ...options
   }
 
   if (debug) {

@@ -1,11 +1,11 @@
 const { Writable } = require('stream')
 const producer = require('../kafka/producer')
 
-module.exports = function ({ brokers, debug, objectMode }) {
+module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
 
-  producer.connect({ brokers, debug })
+  producer.connect({ brokers, debug, producerOpts })
 
   return (topic) => {
     console.info(`WRITE Kafka Topic: ${topic}`)
