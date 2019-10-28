@@ -5,7 +5,7 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
 
-  producer.connect({ brokers, debug, producerOpts })
+  producer.connect({ brokers, debug, ...producerOpts })
 
   return (topic) => {
     console.info(`WRITE Kafka Topic: ${topic}`)
