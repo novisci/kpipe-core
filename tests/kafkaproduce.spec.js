@@ -40,8 +40,6 @@ test('write json stream to topic', async () => {
 
   await ppipe(
     require('..').Reader({ type: 'fs' })(filename),
-    // require('../../streams').Transform.Delineate(), // Remove this dependency
-    // require('../../streams').Transform.JSONParse(), // Remove this dependency
     xform,
     kafkaWriter(topic)
   )
