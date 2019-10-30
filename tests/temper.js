@@ -51,7 +51,7 @@ Temper.TopicTemper = function (options) {
   options = options || {}
 
   const kafkaAdmin = require('..').KafkaAdmin({
-    brokers: process.env.DPIPE_BROKERS
+    brokers: process.env.KPIPE_BROKERS
   })
 
   return new (require('./temper'))({

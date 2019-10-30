@@ -3,12 +3,12 @@ const ppipe = require('util').promisify(require('stream').pipeline)
 
 const kafkaReader = require('..').Reader({
   type: 'kafka',
-  brokers: process.env.DPIPE_BROKERS,
+  brokers: process.env.KPIPE_BROKERS,
   objectMode: true
 })
 
 const kafkaAdmin = require('..').KafkaAdmin({
-  brokers: process.env.DPIPE_BROKERS
+  brokers: process.env.KPIPE_BROKERS
 })
 
 // beforeEach()

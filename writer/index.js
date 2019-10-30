@@ -1,5 +1,5 @@
-module.exports = function (options) {
-  if (!options || !options.type) {
+module.exports = function ({ type, ...options } = {}) {
+  if (!type) {
     throw new Error('No writer backend specified in options.type')
   }
 
@@ -7,14 +7,14 @@ module.exports = function (options) {
   //  given a path
   let backend = null
 
-  switch (options.type) {
+  switch (type) {
     case 'fs': backend = require('./fs')(options); break
     case 's3': backend = require('./s3')(options); break
     case 'stdio': backend = require('./stdio')(options); break
     case 'kafka': backend = require('./kafka')(options); break
     case 'buffer': backend = require('./buffer')(options); break
     case 'null': backend = require('./null')(options); break
-    default: throw new Error(`Unknown writer type "${options.type}`)
+    default: throw new Error(`Unknown writer type "${type}`)
   }
 
   return (...args) => backend(...args)

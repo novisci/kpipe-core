@@ -17,7 +17,7 @@ async function _connect ({ brokers, debug, ...options }) {
     return producerReady
   }
 
-  brokers = brokers || process.env.DPIPE_BROKERS || 'localhost:9092'
+  brokers = brokers || process.env.KPIPE_BROKERS || 'localhost:9092'
 
   const opts = {
     'client.id': 'dpipe',
@@ -68,7 +68,7 @@ function _counter (topic) {
 /**
  * 
  */
-async function _produce (topic, message, key) {
+async function _produce (topic, message, key, partition) {
   if (typeof message !== 'string' && !Buffer.isBuffer(message)) {
     throw Error('message must be a buffer or a string')
   }
@@ -88,7 +88,7 @@ async function _produce (topic, message, key) {
 
   return producerReady.then((p) => {
     try {
-      p.produce(topic, null, message, key, null)
+      p.produce(topic, partition, message, key, null)
       _counter(topic)
       return p
     } catch (err) {

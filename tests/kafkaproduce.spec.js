@@ -4,12 +4,12 @@ const ppipe = require('util').promisify(require('stream').pipeline)
 
 const kafkaWriter = Writer({
   type: 'kafka',
-  brokers: process.env.DPIPE_BROKERS,
+  brokers: process.env.KPIPE_BROKERS,
   objectMode: true
 })
 
 const kafkaAdmin = KafkaAdmin({
-  brokers: process.env.DPIPE_BROKERS
+  brokers: process.env.KPIPE_BROKERS
 })
 
 const topicTemper = TopicTemper()
@@ -26,10 +26,23 @@ test('write json stream to topic', async () => {
 
   await kafkaAdmin.disconnect()
 
+  const xform = require('stream').Transform({
+    writableObjectMode: false,
+    readableObjectMode: true, 
+
+    transform: (chunk, enc, cb) => {
+      chunk.toString().split('\n').forEach((l) => {
+        xform.push(l + '\n')
+      })
+      cb()
+    }
+  })
+
   await ppipe(
     require('..').Reader({ type: 'fs' })(filename),
-    require('../../streams').Transform.Delineate(), // Remove this dependency
-    require('../../streams').Transform.JSONParse(), // Remove this dependency
+    // require('../../streams').Transform.Delineate(), // Remove this dependency
+    // require('../../streams').Transform.JSONParse(), // Remove this dependency
+    xform,
     kafkaWriter(topic)
   )
 })

@@ -7,7 +7,10 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
 
   producer.connect({ brokers, debug, ...producerOpts })
 
-  return (topic) => {
+  return (topic, partition) => {
+    if (!topic) {
+      throw Error('topic is required in KafkaProducer.send()')
+    }
     console.info(`WRITE Kafka Topic: ${topic}`)
 
     const _writeObj = (obj, enc, cb) => {
@@ -31,7 +34,7 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
         message = Buffer.from(JSON.stringify(obj))
       }
 
-      producer.send(topic, message, key)
+      producer.send(topic, message, key, partition)
         .then(() => setImmediate(cb))
         .catch((err) => {
           // stream.destroy()
@@ -42,7 +45,7 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
     }
 
     // const _writeBuf = (message, enc, cb) => {
-    //   producer.send(topic, message, null)
+    //   producer.send(topic, message, null, partition)
     //     .then(() => setImmediate(cb))
     //     .catch((err) => {
     //       // stream.close()
