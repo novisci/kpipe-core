@@ -10,7 +10,7 @@ let _metadata = null
 const stats = {}
 
 /**
- * 
+ *
  */
 async function _connect ({ brokers, debug, ...options }) {
   if (producer) {
@@ -56,7 +56,7 @@ async function _connect ({ brokers, debug, ...options }) {
 }
 
 /**
- * 
+ *
  */
 function _counter (topic) {
   if (!stats[topic]) {
@@ -66,7 +66,7 @@ function _counter (topic) {
 }
 
 /**
- * 
+ *
  */
 async function _produce (topic, message, key, partition) {
   if (typeof message !== 'string' && !Buffer.isBuffer(message)) {
@@ -106,7 +106,7 @@ async function _produce (topic, message, key, partition) {
 }
 
 /**
- * 
+ *
  */
 async function _flush () {
   if (producer) {
@@ -123,7 +123,7 @@ async function _flush () {
 }
 
 /**
- * 
+ *
  */
 async function _disconnect () {
   if (producer) {
