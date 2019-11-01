@@ -70,9 +70,9 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fu
           if (fullMessage) {
             m.value = m.value.toString()
             m.key = m.key ? m.key.toString() : null
-            return JSON.stringify(m) + '\n'
+            return JSON.stringify(m)
           }
-          return m.value.toString() + '\n'
+          return m.value.toString()
         })
 
         msgs.map((m) => stream.push(m))
