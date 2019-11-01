@@ -1,7 +1,7 @@
 const { Writable } = require('stream')
 const producer = require('../kafka/producer')
 
-module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
+module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
 
@@ -19,18 +19,23 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts }) {
       }
 
       let key = null
-      // Key is implied. Either the first element of an array
-      //  or a property of an object named "key"
-      let message
-      if (typeof obj === 'string') {
-        message = Buffer.from(obj)
+      if (fnKey) {
+        // Explicit key extract function supplied
+        key = fnKey(obj)
       } else {
+        // Key is inferred. Either the first element of an array
+        //  or a property of an object named "key"
         if (Array.isArray(obj)) {
           key = obj[0]
         } else if (obj.key) {
           key = obj.key
         }
+      }
 
+      let message
+      if (typeof obj === 'string') {
+        message = Buffer.from(obj)
+      } else {
         message = Buffer.from(JSON.stringify(obj))
       }
 
