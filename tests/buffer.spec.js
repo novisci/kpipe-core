@@ -9,6 +9,12 @@ afterEach(() => fileTemper.flush())
 const testfile = './tests/data/stream.json'
 const testData = fs.readFileSync(testfile)
 
+test('buffer reader throws when no buffer supplied', () => {
+  expect(() => {
+    rBuf()
+  }).toThrow()
+})
+
 test('buffer reader writes to file', async () => {
   const tmp = fileTemper.get()
   await ppipe(

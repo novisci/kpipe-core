@@ -4,7 +4,7 @@
   "description": "Core IO and streams for kpipe",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "./node_modules/.bin/jest --forceExit --coverage --verbose"
   },
   "author": "Paul Rowan <prowan@novisci.com>",
   "license": "MIT",

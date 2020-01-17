@@ -20,10 +20,11 @@ function topicConf (topic, seek) {
  *  commit - true/false, commit received messages to consumer_offsets (default false)
  *  closeAtEnd - true/false stop consuming when end of partition is reached (default true)
  *  chunkSize - consume this many messages at a time (default 16)
+ *  timeout - end consumption if no messages received within timeout (ms)
  *  fullMessage - true/false push entire kafka message (as json), not just its value (default false)
  *  debug - true/false enable debug logs from node-rdkafka consumer
  */
-module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fullMessage, debug }) {
+module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, timeout, fullMessage, debug }) {
   brokers = brokers || 'localhost:9092'
   chunkSize = chunkSize || 16
   closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
@@ -39,6 +40,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fu
     let nPushed = 0
     let isEnded = false
     let paused = false
+    let lastMsgTime = null
 
     function consume () {
       if (paused) {
@@ -61,11 +63,18 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fu
         }
 
         if (messages.length === 0) {
+          if (timeout && (Date.now() - lastMsgTime) > timeout) {
+            console.info('Consumer timeout expired, closing stream...')
+            isEnded = true
+            stream.push(null)
+            return false
+          }
           setTimeout(() => consume(), 100)
           return
         }
 
         // process.stderr.write('$')
+        lastMsgTime = Date.now()
         const msgs = messages.map((m) => {
           if (fullMessage) {
             m.value = m.value.toString()
@@ -194,7 +203,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, fu
       'metadata.broker.list': brokers,
       'group.id': groupid,
       'enable.auto.commit': false,
-      'message.timeout.ms': 10000,
+      // 'message.timeout.ms': 10000, (?? producer only)
       // 'auto.commit.interval.ms': 15,
       'socket.keepalive.enable': true
       // 'debug': 'consumer,cgrp,topic,fetch',
