@@ -8,6 +8,7 @@ let producer = null
 let producerReady = false
 let _metadata = null
 const stats = {}
+let _deferredMsgs = 0
 
 /**
  *
@@ -28,6 +29,8 @@ async function _connect ({ brokers, debug, ...options }) {
   if (debug) {
     opts.debug = 'broker,topic'
   }
+
+  _deferredMsgs = 0
 
   producer = new Producer(opts)
   producer.on('disconnected', (arg) => {
@@ -68,7 +71,7 @@ function _counter (topic) {
 /**
  *
  */
-async function _produce (topic, message, key, partition) {
+async function _send (topic, message, key, partition) {
   if (typeof message !== 'string' && !Buffer.isBuffer(message)) {
     throw Error('message must be a buffer or a string')
   }
@@ -86,10 +89,23 @@ async function _produce (topic, message, key, partition) {
   }
   message = Buffer.isBuffer(message) ? message : Buffer.from(message)
 
+  _deferredMsgs++
+  return _produce(topic, message, key, partition)
+}
+
+/**
+ *
+ */
+async function _produce (topic, message, key, partition) {
+  if (!producer) {
+    throw Error('producer connection has gone away')
+  }
+
   return producerReady.then((p) => {
     try {
       p.produce(topic, partition, message, key, null)
       _counter(topic)
+      _deferredMsgs--
       return p
     } catch (err) {
       if (ErrorCode.ERR__QUEUE_FULL === err.code) {
@@ -99,10 +115,14 @@ async function _produce (topic, message, key, partition) {
         // Just delay this thing a bit and pass the params again
         setTimeout(() => _produce(topic, message, key), 500)
       } else {
+        _deferredMsgs--
         return Promise.reject(err)
       }
     }
   })
+    .catch((err) => {
+      console.error(err)
+    })
 }
 
 /**
@@ -110,15 +130,26 @@ async function _produce (topic, message, key, partition) {
  */
 async function _flush () {
   if (producer) {
-    return producerReady.then((p) =>
-      new Promise((resolve, reject) => {
-        p.flush(10000, (err) => {
-          if (err) {
-            return reject(err)
+    return producerReady
+      .then((p) => new Promise((resolve) => {
+        const checkDeferred = () => {
+          if (_deferredMsgs > 0) {
+            setTimeout(() => checkDeferred(), 1000)
+          } else {
+            resolve(p)
           }
-          resolve(p)
-        })
+        }
+        checkDeferred()
       }))
+      .then((p) =>
+        new Promise((resolve, reject) => {
+          p.flush(10000, (err) => {
+            if (err) {
+              return reject(err)
+            }
+            resolve(p)
+          })
+        }))
   }
 }
 
@@ -161,7 +192,7 @@ process.on('exit', () => {
 
 module.exports = {
   connect: _connect,
-  send: _produce,
+  send: _send,
   flush: _flush,
   disconnect: _disconnect,
   stats: () => Object.assign({}, stats),
