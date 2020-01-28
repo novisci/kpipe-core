@@ -1,0 +1,17 @@
+./reader/random
+./reader/index
+./reader/s3
+./reader/stdio
+./reader/kafka
+./reader/buffer
+./reader/fs
+./stream-tracker
+./writer/null
+./writer/index
+./writer/s3
+./writer/stdio
+./writer/kafka
+./writer/buffer
+./writer/fs
+./kafka/producer
+./kafka/admin

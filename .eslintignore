@@ -1,2 +1,10 @@
-/node_modules/
-npm-debug.log
+# /node_modules/* in the project root is ignored by default
+# build artefacts
+dist/*
+coverage/*
+archive/*
+# data definition files
+**/*.d.ts
+# config files
+jest.config.js
+jest.setup.js
