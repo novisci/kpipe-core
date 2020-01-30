@@ -2,6 +2,12 @@ import { KafkaConsumer } from 'node-rdkafka'
 import { Readable } from 'stream'
 import { StreamGenerator } from '../backend'
 
+declare module 'node-rdkafka' {
+  interface KafkaConsumer {
+    isConnecting: boolean
+  }
+}
+
 interface Seek {
   partition?: number
   offset?: number
@@ -86,7 +92,7 @@ export default function ({
         return
       }
 
-      consumer.consume(count, (err, messages) => {
+      consumer.consume(count, (err: Error|null, messages: any[]) => {
         if (err) {
           stream.emit('error', err)
           endStream()
@@ -122,17 +128,6 @@ export default function ({
 
         nPushed += msgs.length
 
-        // let msg
-        // while ((msg = msgs.shift()) !== false) {
-        //   if (!stream.push(msg)) {
-        //     break
-        //   }
-        // }
-        // if (msgs.length > 0) {
-        //   // Backpressure
-        //   throw Error('Backpressure not handled in kafka consumer. Messages unsent: ' + msgs.length)
-        // }
-
         const lastMsg = messages[messages.length - 1]
 
         // If commit specified, commit up to the last message received
@@ -142,7 +137,7 @@ export default function ({
             partition: lastMsg.partition,
             offset: lastMsg.offset + 1
           }
-          // console.debug('committing ' + cmt.offset)
+          console.debug('committing ' + cmt.offset)
           consumer.commit(cmt)
         }
 
@@ -164,7 +159,7 @@ export default function ({
     }
 
     function installSigintTerminate (): void {
-      process.once('SIGINT', (sig) => {
+      process.once('SIGINT', () => {
         process.stderr.write('\n')
         endStream()
       })
@@ -190,13 +185,17 @@ export default function ({
     stream.on('error', (err) => {
       console.error('STREAM event: error')
       console.error(err)
+<<<<<<< HEAD
       endStream()
+=======
+      stream.push(null)
+>>>>>>> more typesetting and refactoring
     })
 
     stream.on('close', () => {
       console.debug('STREAM event: close')
       isEnded = true
-      disconnect(() => {})
+      disconnect(() => { /* no-op */ })
     })
 
     stream.on('end', () => {
@@ -205,11 +204,12 @@ export default function ({
       stream.destroy()
     })
 
-    stream._destroy = function (err, cb) {
+    stream._destroy = function (err: Error|null, cb): void {
       console.debug('_destroy')
       disconnect((e) => {
         if (e) {
-          return cb(e)
+          cb(e)
+          return
         }
         cb(err)
       })
@@ -246,7 +246,7 @@ export default function ({
       opts.debug = 'consumer,cgrp,topic,fetch'
     }
 
-    const consumer = KafkaConsumer(opts, {
+    const consumer = new KafkaConsumer(opts, {
       'auto.offset.reset': 'earliest' // 'latest',
     })
 
@@ -265,7 +265,7 @@ export default function ({
 
     // consumer.setDefaultConsumeTimeout(1000)
 
-    function cbConnect (err?: Error, metadata): void {
+    function cbConnect (err?: Error /*, metadata */): void {
       if (err) {
         console.error('FAILED connect')
         stream.emit('error', err)
@@ -280,7 +280,7 @@ export default function ({
         const off = topicConf(topic, position)
         if (off) {
           console.info('CONSUMER assign: ', off)
-          consumer.queryWatermarkOffsets(topic, off.partition, 1000, (err?: Error, marks) => {
+          consumer.queryWatermarkOffsets(topic, off.partition, 1000, (err: Error|null, marks) => {
             if (err) {
               stream.emit('error', err)
               return

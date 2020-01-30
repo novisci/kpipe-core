@@ -9,18 +9,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const AWS = __importStar(require("aws-sdk"));
 const path = __importStar(require("path"));
-module.exports = function (options) {
+const stream_tracker_1 = require("../stream-tracker");
+function default_1(options = {}) {
     if (!options.bucket || !options.region) {
         throw new Error('S3 reader requires options.bucket and options.region');
     }
-    var s3 = new AWS.S3({
+    const s3 = new AWS.S3({
         apiVersion: '2017-08-08',
         region: options.region
     });
     const bucket = options.bucket;
     const prefix = options.prefix || '';
     return (key) => {
-        var params = {
+        const params = {
             Bucket: bucket,
             Key: path.join(prefix, key)
         };
@@ -35,7 +36,8 @@ module.exports = function (options) {
                 });
             }
         });
-        return require('../stream-tracker')(stream);
+        return stream_tracker_1.StreamTracker(stream);
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=s3.js.map

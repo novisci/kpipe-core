@@ -12,34 +12,22 @@ function topicConf(topic, seek) {
         offset: seek.offset
     };
 }
-/***
- * options:
- *  groupid - consumer group id (if missing, a random one will be assigned)
- *  brokers - list of broker host:port addresses (optional)
- *  commit - true/false, commit received messages to consumer_offsets (default false)
- *  closeAtEnd - true/false stop consuming when end of partition is reached (default true)
- *  chunkSize - consume this many messages at a time (default 16)
- *  timeout - end consumption if no messages received within timeout (ms)
- *  fullMessage - true/false push entire kafka message (as json), not just its value (default false)
- *  debug - true/false enable debug logs from node-rdkafka consumer
- */
-module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, timeout, fullMessage, debug }) {
-    brokers = brokers || 'localhost:9092';
-    chunkSize = chunkSize || 16;
-    closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true;
-    groupid = groupid || 'cgroup-' + require('uid-safe').sync(6);
+function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('uid-safe').sync(6), commit = false, closeAtEnd = true, chunkSize = 16, timeout, fullMessage = false, debug = false }) {
+    // brokers = brokers || 'localhost:9092'
+    // chunkSize = chunkSize || 16
+    // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
+    // groupid = groupid || 'cgroup-' + require('uid-safe').sync(6)
     let endOfPartition = null;
-    return (topic, position) => {
-        position = position || {};
+    return (topic, position = {}) => {
         console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`);
         let nPushed = 0;
         let isEnded = false;
-        let paused = false;
-        let lastMsgTime = null;
+        // let paused = false
+        let lastMsgTime = Date.now();
         function consume() {
-            if (paused) {
-                return;
-            }
+            // if (paused) {
+            //   return
+            // }
             let count = chunkSize;
             if (position.count) {
                 count = Math.min(count, position.count - nPushed);
@@ -74,16 +62,6 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
                 });
                 msgs.map((m) => stream.push(m));
                 nPushed += msgs.length;
-                // let msg
-                // while ((msg = msgs.shift()) !== false) {
-                //   if (!stream.push(msg)) {
-                //     break
-                //   }
-                // }
-                // if (msgs.length > 0) {
-                //   // Backpressure
-                //   throw Error('Backpressure not handled in kafka consumer. Messages unsent: ' + msgs.length)
-                // }
                 const lastMsg = messages[messages.length - 1];
                 // If commit specified, commit up to the last message received
                 if (commit) {
@@ -92,7 +70,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
                         partition: lastMsg.partition,
                         offset: lastMsg.offset + 1
                     };
-                    // console.debug('committing ' + cmt.offset)
+                    console.debug('committing ' + cmt.offset);
                     consumer.commit(cmt);
                 }
                 // Check for end of parition (if closeAtEnd is true) and end consumption
@@ -112,7 +90,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             });
         }
         function installSigintTerminate() {
-            process.once('SIGINT', (sig) => {
+            process.once('SIGINT', () => {
                 process.stderr.write('\n');
                 stream.push(null);
             });
@@ -121,7 +99,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             objectMode: true,
             read: () => {
                 if (isEnded) {
-                    return null;
+                    return;
                 }
                 if (!consumer.isConnected()) {
                     consumer.once('ready', () => {
@@ -135,7 +113,6 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         stream.on('error', (err) => {
             console.error('STREAM event: error');
             console.error(err);
-            // stream.destroy(err)
             stream.push(null);
         });
         stream.on('close', () => {
@@ -152,7 +129,8 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             console.debug('_destroy');
             disconnect((e) => {
                 if (e) {
-                    return cb(e);
+                    cb(e);
+                    return;
                 }
                 cb(err);
             });
@@ -178,14 +156,15 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             'enable.auto.commit': false,
             // 'message.timeout.ms': 10000, (?? producer only)
             // 'auto.commit.interval.ms': 15,
-            'socket.keepalive.enable': true
+            'socket.keepalive.enable': true,
             // 'debug': 'consumer,cgrp,topic,fetch',
             // 'enable.partition.eof': true
+            'debug': ''
         };
         if (debug) {
             opts.debug = 'consumer,cgrp,topic,fetch';
         }
-        const consumer = node_rdkafka_1.KafkaConsumer(opts, {
+        const consumer = new node_rdkafka_1.KafkaConsumer(opts, {
             'auto.offset.reset': 'earliest' // 'latest',
         });
         consumer.on('event.log', (log) => {
@@ -199,7 +178,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             stream.push(null);
         });
         // consumer.setDefaultConsumeTimeout(1000)
-        function cbConnect(err, metadata) {
+        function cbConnect(err /*, metadata */) {
             if (err) {
                 console.error('FAILED connect');
                 stream.emit('error', err);
@@ -238,5 +217,6 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         consumer.connect({}, cbConnect);
         return stream;
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=kafka.js.map

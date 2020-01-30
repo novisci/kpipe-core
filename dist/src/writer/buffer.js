@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const stream_1 = require("stream");
-module.exports = function (options) {
-    options = options || {};
+function default_1() {
     return (src) => {
         src = src || '';
         if (!Buffer.isBuffer(src) && typeof src !== 'string') {
@@ -12,12 +11,13 @@ module.exports = function (options) {
         const stream = new stream_1.Writable({
             objectMode: false,
             write: (chunk, enc, cb) => {
-                _buffer = Buffer.concat([_buffer, Buffer.from(chunk, enc)]);
+                _buffer = Buffer.concat([_buffer, Buffer.from(chunk)]);
                 cb();
             }
         });
         stream.get = () => _buffer;
         return stream;
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=buffer.js.map

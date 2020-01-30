@@ -1,7 +1,8 @@
-import { PassThrough } from 'stream'
+import { PassThrough, Writable } from 'stream'
+import { StreamGenerator } from '../backend'
 
-export default function (options) {
-  return () => {
+export default function (): StreamGenerator<Writable> {
+  return (): Writable => {
     const stream = new PassThrough()
     stream.on('finish', () => {
       stream.unpipe(process.stdout)

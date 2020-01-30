@@ -9,12 +9,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-module.exports = function (options) {
+function default_1(options = {}) {
     const prefix = options.prefix || '';
     return (fn) => {
         const p = path.join(prefix, fn);
         console.info(`WRITE FS Path: ${p}`);
         return fs.createWriteStream(p);
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=fs.js.map

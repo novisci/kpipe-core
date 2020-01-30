@@ -9,7 +9,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-module.exports = function (options) {
+const stream_tracker_1 = require("../stream-tracker");
+function default_1(options = {}) {
     const prefix = options.prefix || '';
     return (fn) => {
         const p = path.join(prefix, fn);
@@ -24,7 +25,8 @@ module.exports = function (options) {
                 size: stats.size
             });
         });
-        return require('../stream-tracker')(stream);
+        return stream_tracker_1.StreamTracker(stream);
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=fs.js.map

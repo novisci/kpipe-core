@@ -1,11 +1,12 @@
 "use strict";
-module.exports = function ({ type, ...options } = {}) {
+Object.defineProperty(exports, "__esModule", { value: true });
+function default_1({ type, ...options } = { type: 'buffer' }) {
     if (!type) {
         throw new Error('No reader backend specified in options.type');
     }
     // Backend readers return a function which creates new readable streams
     //  given a path
-    let backend = null;
+    let backend;
     switch (type) {
         case 'fs':
             backend = require('./fs')(options);
@@ -27,6 +28,7 @@ module.exports = function ({ type, ...options } = {}) {
             break;
         default: throw new Error(`Unknown reader type "${type}`);
     }
-    return (...args) => backend(...args);
-};
+    return backend;
+}
+exports.default = default_1;
 //# sourceMappingURL=index.js.map

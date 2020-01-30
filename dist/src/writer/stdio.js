@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const stream_1 = require("stream");
-module.exports = function (options) {
+function default_1() {
     return () => {
         const stream = new stream_1.PassThrough();
         stream.on('finish', () => {
@@ -10,5 +10,6 @@ module.exports = function (options) {
         stream.pipe(process.stdout);
         return stream;
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=stdio.js.map

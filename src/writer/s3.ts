@@ -1,13 +1,29 @@
 import * as AWS from 'aws-sdk'
 import { PassThrough, Writable } from 'stream'
 import * as path from 'path'
+import { StreamGenerator } from '../backend'
 
-export default function (options) {
+type S3Params = {
+  Bucket: string
+  Key: string
+  Body: PassThrough
+  ServerSideEncryption?: 'aws:kms'
+  SSEKMSKeyId?: string
+}
+
+type Opts = {
+  bucket?: string
+  region?: string
+  prefix?: string
+  key?: string
+}
+
+export default function (options: Opts = {}): StreamGenerator<Writable> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }
 
-  var s3 = new AWS.S3({
+  const s3 = new AWS.S3({
     apiVersion: '2017-08-08',
     region: options.region
   })
@@ -16,22 +32,17 @@ export default function (options) {
   const prefix = options.prefix || ''
   const keyid = options.key
 
-  // let count = 0
-
-  return (fn) => {
+  return (fn): Writable => {
     const s3stream = new PassThrough()
     const stream = new Writable({
-      write: (chunk, enc, cb) => {
-        // if (count++ % 1000 === 0) {
-        //   process.stderr.write('x')
-        // }
-        return s3stream.write(chunk, enc, cb)
+      write: (chunk, enc, cb): void => {
+        s3stream.write(chunk, enc, cb)
       },
-      final: (cb) => {
+      final: (cb): void => {
         s3stream.end()
         const intvl = setInterval(() => {
           if (completed) {
-            // console.debug('s3stream completed: ' + fn)
+            console.debug('s3stream completed: ' + fn)
             clearInterval(intvl)
             cb(completedErr)
           }
@@ -39,7 +50,7 @@ export default function (options) {
       }
     })
 
-    var params = {
+    const params: S3Params = {
       Bucket: bucket,
       Key: path.join(prefix, fn),
       Body: s3stream
@@ -51,7 +62,7 @@ export default function (options) {
     }
 
     let completed = false
-    let completedErr = null
+    let completedErr: Error|undefined
 
     console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
@@ -62,14 +73,14 @@ export default function (options) {
       // .on('httpUploadProgress', (progress) => {
       //   process.stderr.write(progress.part.toLocaleString())
       // })
-      .on('error', console.error)
+      // .on('error', console.error)
       .promise()
-      .then((data) => {
-        // console.debug('upload stream complete')
+      .then(() => {
+        console.debug('upload stream complete')
         completed = true
         s3stream.destroy()
       })
-      .catch((err) => {
+      .catch((err: Error|undefined) => {
         console.error(err)
         completed = true
         completedErr = err

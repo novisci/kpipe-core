@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const stream_1 = require("stream");
 const producer = require('../kafka/producer');
-module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
-    brokers = brokers || 'localhost:9092';
-    objectMode = typeof objectMode === 'undefined' ? false : !!objectMode;
+function default_1({ brokers = 'localhost:9092', debug = false, 
+// objectMode = false,
+producerOpts = {}, fnKey } = {}) {
     producer.connect({ brokers, debug, ...producerOpts });
     return (topic, partition) => {
         if (!topic) {
@@ -43,7 +43,6 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) 
                 // stream.destroy()
                 setImmediate(() => cb(err));
             });
-            return true;
         };
         // const _writeBuf = (message, enc, cb) => {
         //   producer.send(topic, message, null, partition)
@@ -57,7 +56,7 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) 
             objectMode: true,
             write: /* objectMode !== true ? _writeBuf : */ _writeObj,
             final: (cb) => {
-                producer.flush().then((stats) => {
+                producer.flush().then(() => {
                     // Object.entries(stats).map((e) => {
                     //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)
                     // })
@@ -71,5 +70,6 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) 
         });
         return stream;
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=kafka.js.map

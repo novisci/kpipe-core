@@ -2,7 +2,19 @@ import { AdminClient } from 'node-rdkafka'
 
 const TIMEOUT = 1000
 
-function KafkaAdmin (options) {
+type KafkaAdminOpts = {
+  brokers?: string
+}
+
+interface KafkaAdmin {
+  constructor (options: KafkaAdminOpts): KafkaAdmin
+  createTopic (topic: string, nParts: number, nReplicas: number, options: {}): Promise<void>
+  deleteTopic (topic: string): Promise<void>
+  createPartitions (topic: string, nParts: number): Promise<void>
+  disconnect (): Promise<void>
+}
+
+function KafkaAdmin (this: unknown, options: KafkaAdminOpts = {}): KafkaAdmin {
   if (!(this instanceof KafkaAdmin)) {
     return new KafkaAdmin(options)
   }
@@ -16,16 +28,17 @@ function KafkaAdmin (options) {
     'socket.keepalive.enable': true
     // 'debug': 'consumer'
   })
+  return this
 }
 
-KafkaAdmin.prototype.createTopic = function (topic, nParts, nReplicas, options) {
+KafkaAdmin.prototype.createTopic = function (topic: string, nParts: number, nReplicas: number, options: {}): Promise<void> {
   return new Promise((resolve, reject) => {
     this._client.createTopic({
       topic,
       num_partitions: nParts || 1,
       replication_factor: nReplicas || 1,
       config: options || {}
-    }, TIMEOUT, (err) => {
+    }, TIMEOUT, (err: Error|null) => {
       if (err) return reject(err)
       resolve()
     })

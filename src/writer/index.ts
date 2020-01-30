@@ -1,11 +1,17 @@
-export default function ({ type, ...options } = {}) {
+import { Writable } from 'stream'
+import { StreamGenerator } from '../backend'
+
+type WriterBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'null'
+type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
+
+export default function ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable> {
   if (!type) {
     throw new Error('No writer backend specified in options.type')
   }
 
   // Backend writers return a function which creates new writable streams
   //  given a path
-  let backend = null
+  let backend: StreamGenerator<Writable>
 
   switch (type) {
     case 'fs': backend = require('./fs')(options); break
@@ -17,5 +23,5 @@ export default function ({ type, ...options } = {}) {
     default: throw new Error(`Unknown writer type "${type}`)
   }
 
-  return (...args) => backend(...args)
+  return backend
 }

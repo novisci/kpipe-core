@@ -21,7 +21,7 @@ function randValue(type) {
         case 'number': return Math.random() * 1000;
     }
 }
-module.exports = function (options) {
+function default_1(options) {
     options = options || {};
     const width = options.width || 10;
     const cols = (new Array(width)).fill(null).map(() => {
@@ -50,5 +50,6 @@ module.exports = function (options) {
         });
         return stream;
     };
-};
+}
+exports.default = default_1;
 //# sourceMappingURL=random.js.map
