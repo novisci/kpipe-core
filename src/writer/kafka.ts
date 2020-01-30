@@ -1,7 +1,7 @@
-const { Writable } = require('stream')
+import { Writable } from 'stream'
 const producer = require('../kafka/producer')
 
-module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
+export default function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
 

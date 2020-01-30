@@ -1,10 +1,10 @@
-const fs = require('fs')
-const path = require('path')
+import * as fs from 'fs'
+import * as path from 'path'
 
-module.exports = function (options) {
+export default function (options) {
   const prefix = options.prefix || ''
 
-  return (fn) => {
+  return (fn: string) => {
     const p = path.join(prefix, fn)
 
     console.info(`WRITE FS Path: ${p}`)

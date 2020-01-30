@@ -1,14 +1,13 @@
-const { Readable } = require('stream')
+import { Readable } from 'stream'
+import { StreamGenerator } from '../backend'
 
-module.exports = function (options) {
-  options = options || {}
-
-  return (buffer) => {
+export default function (): StreamGenerator<Readable> {
+  return (buffer: Buffer): Readable => {
     if (!Buffer.isBuffer(buffer)) {
       throw Error('supplied argument must be a buffer')
     }
 
-    let stream = new Readable()
+    const stream = new Readable()
     stream.push(buffer)
     stream.push(null)
     return stream

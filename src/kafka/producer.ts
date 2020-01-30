@@ -1,7 +1,7 @@
 /***
  * Return the singleton kafka producer instance
  */
-const { Producer, CODES } = require('node-rdkafka')
+import { Producer, CODES } from 'node-rdkafka'
 const ErrorCode = CODES.ERRORS
 
 let producer = null

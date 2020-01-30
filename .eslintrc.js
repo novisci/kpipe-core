@@ -8,6 +8,9 @@ module.exports = {
     'plugin:@typescript-eslint/recommended', // Out of the box Typescript rules
     'standard' // Out of the box StandardJS rules
   ],
+  'globals': {
+    'BigInt': 'readonly'
+  },
   'plugins': [
     '@typescript-eslint', // Let's us override rules below.
     'jest'

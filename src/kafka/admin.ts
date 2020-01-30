@@ -1,4 +1,4 @@
-const { AdminClient } = require('node-rdkafka')
+import { AdminClient } from 'node-rdkafka'
 
 const TIMEOUT = 1000
 

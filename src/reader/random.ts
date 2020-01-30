@@ -1,4 +1,4 @@
-const { Readable } = require('stream')
+import { Readable } from 'stream'
 
 function randIdx (max) {
   max = Math.floor(max)
@@ -24,7 +24,7 @@ function randValue (type) {
   }
 }
 
-module.exports = function (options) {
+export default function (options) {
   options = options || {}
 
   const width = options.width || 10

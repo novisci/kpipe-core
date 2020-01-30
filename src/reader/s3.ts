@@ -1,12 +1,21 @@
-const AWS = require('aws-sdk')
-const path = require('path')
+import * as AWS from 'aws-sdk'
+import * as path from 'path'
+import { StreamGenerator } from '../backend'
+import { Readable } from 'stream'
+import { StreamTracker } from '../stream-tracker'
 
-module.exports = function (options) {
+type Opts = {
+  bucket?: string
+  region?: string
+  prefix?: string
+}
+
+export default function (options: Opts = {}): StreamGenerator<Readable> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 reader requires options.bucket and options.region')
   }
 
-  var s3 = new AWS.S3({
+  const s3 = new AWS.S3({
     apiVersion: '2017-08-08',
     region: options.region
   })
@@ -14,8 +23,8 @@ module.exports = function (options) {
   const bucket = options.bucket
   const prefix = options.prefix || ''
 
-  return (key) => {
-    var params = {
+  return (key: string): Readable => {
+    const params = {
       Bucket: bucket,
       Key: path.join(prefix, key)
     }
@@ -33,6 +42,6 @@ module.exports = function (options) {
       }
     })
 
-    return require('../stream-tracker')(stream)
+    return StreamTracker(stream)
   }
 }

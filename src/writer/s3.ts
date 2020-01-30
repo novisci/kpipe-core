@@ -1,8 +1,8 @@
-const AWS = require('aws-sdk')
-const { PassThrough, Writable } = require('stream')
-const path = require('path')
+import * as AWS from 'aws-sdk'
+import { PassThrough, Writable } from 'stream'
+import * as path from 'path'
 
-module.exports = function (options) {
+export default function (options) {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }

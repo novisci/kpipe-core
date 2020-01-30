@@ -1,6 +1,6 @@
-const { PassThrough } = require('stream')
+import { PassThrough } from 'stream'
 
-module.exports = function (options) {
+export default function () {
   return () => {
     const stream = new PassThrough({
       // autoClose: true

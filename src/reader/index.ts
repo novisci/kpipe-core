@@ -1,11 +1,17 @@
-module.exports = function ({ type, ...options } = {}) {
+import { Readable } from 'stream'
+import { StreamGenerator } from '../backend'
+
+type ReaderBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'random'
+type ReaderBackendArgs = { type: ReaderBackendType, [key: string]: any}
+
+export default function ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Readable> {
   if (!type) {
     throw new Error('No reader backend specified in options.type')
   }
 
   // Backend readers return a function which creates new readable streams
   //  given a path
-  let backend = null
+  let backend: StreamGenerator<Readable>
 
   switch (type) {
     case 'fs': backend = require('./fs')(options); break
@@ -17,5 +23,5 @@ module.exports = function ({ type, ...options } = {}) {
     default: throw new Error(`Unknown reader type "${type}`)
   }
 
-  return (...args) => backend(...args)
+  return backend
 }

@@ -1,4 +1,4 @@
-module.exports = function ({ type, ...options } = {}) {
+export default function ({ type, ...options } = {}) {
   if (!type) {
     throw new Error('No writer backend specified in options.type')
   }

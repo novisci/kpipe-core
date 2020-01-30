@@ -1,6 +1,6 @@
-const { Writable } = require('stream')
+import { Writable } from 'stream'
 
-module.exports = function (options) {
+export default function (options) {
   options = options || {}
 
   return (src) => {

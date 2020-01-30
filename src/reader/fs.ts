@@ -1,10 +1,17 @@
-const fs = require('fs')
-const path = require('path')
+import * as fs from 'fs'
+import * as path from 'path'
+import { StreamGenerator } from '../backend'
+import { Readable } from 'stream'
+import { StreamTracker } from '../stream-tracker'
 
-module.exports = function (options) {
+type Opts = {
+  prefix?: string
+}
+
+export default function (options: Opts = {}): StreamGenerator<Readable> {
   const prefix = options.prefix || ''
 
-  return (fn) => {
+  return (fn: string): Readable => {
     const p = path.join(prefix, fn)
 
     console.info(`READ FS Path: ${p}`)
@@ -20,6 +27,6 @@ module.exports = function (options) {
       })
     })
 
-    return require('../stream-tracker')(stream)
+    return StreamTracker(stream)
   }
 }

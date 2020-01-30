@@ -1,7 +1,23 @@
-const { KafkaConsumer } = require('node-rdkafka')
-const { Readable } = require('stream')
+import { KafkaConsumer } from 'node-rdkafka'
+import { Readable } from 'stream'
+import { StreamGenerator } from '../backend'
 
-function topicConf (topic, seek) {
+interface Seek {
+  partition?: number
+  offset?: number
+}
+
+interface Cursor extends Seek {
+  topic: string
+}
+
+interface Position {
+  count?: number
+  offset?: number
+  partition?: number
+}
+
+function topicConf (topic: string, seek?: Seek): Cursor|false {
   if (!seek || typeof seek.partition === 'undefined') {
     return false
   }
@@ -13,34 +29,41 @@ function topicConf (topic, seek) {
   }
 }
 
-/***
- * options:
- *  groupid - consumer group id (if missing, a random one will be assigned)
- *  brokers - list of broker host:port addresses (optional)
- *  commit - true/false, commit received messages to consumer_offsets (default false)
- *  closeAtEnd - true/false stop consuming when end of partition is reached (default true)
- *  chunkSize - consume this many messages at a time (default 16)
- *  timeout - end consumption if no messages received within timeout (ms)
- *  fullMessage - true/false push entire kafka message (as json), not just its value (default false)
- *  debug - true/false enable debug logs from node-rdkafka consumer
- */
-module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, timeout, fullMessage, debug }) {
-  brokers = brokers || 'localhost:9092'
-  chunkSize = chunkSize || 16
-  closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
-  groupid = groupid || 'cgroup-' + require('uid-safe').sync(6)
+type KafkaReaderOpts = {
+  brokers?: string // list of broker host:port addresses (optional)
+  groupid?: string // consumer group id (if missing, a random one will be assigned)
+  commit?: boolean // true/false, commit received messages to consumer_offsets (default false)
+  closeAtEnd?: boolean // true/false stop consuming when end of partition is reached (default true)
+  chunkSize?: number // consume this many messages at a time (default 16)
+  timeout?: number // end consumption if no messages received within timeout (ms)
+  fullMessage?: boolean // true/false push entire kafka message (as json), not just its value (default false)
+  debug?: boolean // true/false enable debug logs from node-rdkafka consumer
+}
 
-  let endOfPartition = null
+export default function ({
+  brokers = 'localhost:9092',
+  groupid = 'cgroup-' + require('uid-safe').sync(6),
+  commit = false,
+  closeAtEnd = true,
+  chunkSize = 16,
+  timeout,
+  fullMessage = false,
+  debug = false
+}: KafkaReaderOpts): StreamGenerator<Readable> {
+  // brokers = brokers || 'localhost:9092'
+  // chunkSize = chunkSize || 16
+  // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
+  // groupid = groupid || 'cgroup-' + require('uid-safe').sync(6)
 
-  return (topic, position) => {
-    position = position || {}
+  let endOfPartition: null|number = null
 
+  return (topic: string, position: Position = {}): Readable => {
     console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`)
 
     let nPushed = 0
     let isEnded = false
-    let paused = false
-    let lastMsgTime = null
+    // let paused = false
+    let lastMsgTime = Date.now()
 
     function endStream () {
       if (!isEnded) {
@@ -50,7 +73,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
     }
 
     function consume () {
-      if (paused || isEnded) {
+      if (isEnded) {
         return
       }
 
@@ -140,7 +163,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       })
     }
 
-    function installSigintTerminate () {
+    function installSigintTerminate (): void {
       process.once('SIGINT', (sig) => {
         process.stderr.write('\n')
         endStream()
@@ -149,9 +172,9 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
 
     const stream = new Readable({
       objectMode: true,
-      read: () => {
+      read: (): void => {
         if (isEnded) {
-          return null
+          return
         }
 
         if (!consumer.isConnected()) {
@@ -192,9 +215,9 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       })
     }
 
-    function disconnect (cb) {
+    function disconnect (cb: (err?: Error) => void): void {
       if (consumer && consumer.isConnected()) {
-        consumer.disconnect((err) => {
+        consumer.disconnect((err?: Error) => {
           if (err) {
             console.error(err)
           }
@@ -213,9 +236,10 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       'enable.auto.commit': false,
       // 'message.timeout.ms': 10000, (?? producer only)
       // 'auto.commit.interval.ms': 15,
-      'socket.keepalive.enable': true
+      'socket.keepalive.enable': true,
       // 'debug': 'consumer,cgrp,topic,fetch',
       // 'enable.partition.eof': true
+      'debug': ''
     }
 
     if (debug) {
@@ -230,7 +254,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       console.debug(log.message)
     })
 
-    consumer.on('event.error', (err) => {
+    consumer.on('event.error', (err?: Error) => {
       stream.emit('error', err)
     })
 
@@ -241,7 +265,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
 
     // consumer.setDefaultConsumeTimeout(1000)
 
-    function cbConnect (err, metadata) {
+    function cbConnect (err?: Error, metadata): void {
       if (err) {
         console.error('FAILED connect')
         stream.emit('error', err)
@@ -256,7 +280,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         const off = topicConf(topic, position)
         if (off) {
           console.info('CONSUMER assign: ', off)
-          consumer.queryWatermarkOffsets(topic, off.partition, 1000, (err, marks) => {
+          consumer.queryWatermarkOffsets(topic, off.partition, 1000, (err?: Error, marks) => {
             if (err) {
               stream.emit('error', err)
               return
