@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const stream_1 = require("stream");
+const stream_tracker_1 = require("../stream-tracker");
 function randIdx(max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max));
@@ -19,10 +20,10 @@ function randValue(type) {
         case 'string': return randString(16 + randIdx(16));
         case 'integer': return randIdx(1000000);
         case 'number': return Math.random() * 1000;
+        default: return 'NaN';
     }
 }
-function default_1(options) {
-    options = options || {};
+function default_1(options = {}) {
     const width = options.width || 10;
     const cols = (new Array(width)).fill(null).map(() => {
         return ['string', 'integer', 'number'][randIdx(3)];
@@ -34,7 +35,7 @@ function default_1(options) {
         length = typeof length === 'undefined' ? 1000 : length;
         let nRows = 0;
         console.info(`READ RANDOM ${width}x${length}`);
-        let stream = new stream_1.Readable({
+        const stream = new stream_1.Readable({
             read: (count) => {
                 while (count--) {
                     nRows++;
@@ -48,7 +49,7 @@ function default_1(options) {
                 }
             }
         });
-        return stream;
+        return stream_tracker_1.StreamTracker(stream);
     };
 }
 exports.default = default_1;

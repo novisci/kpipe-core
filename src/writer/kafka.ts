@@ -42,7 +42,11 @@ export default function ({
         //  or a property of an object named "key"
         if (Array.isArray(obj)) {
           key = obj[0]
-        } else if (obj.key) {
+        } else if (
+          typeof obj === 'object' &&
+          obj !== null &&
+          typeof obj.key !== 'undefined'
+        ) {
           key = obj.key
         }
       }
