@@ -1,5 +1,6 @@
 "use strict";
-const { TopicTemper } = require('./temper');
+Object.defineProperty(exports, "__esModule", { value: true });
+const temper_1 = require("./temper");
 const { Writer, KafkaAdmin, KafkaProducer } = require('..');
 const ppipe = require('util').promisify(require('stream').pipeline);
 const kafkaWriter = Writer({
@@ -10,7 +11,7 @@ const kafkaWriter = Writer({
 const kafkaAdmin = KafkaAdmin({
     brokers: process.env.KPIPE_BROKERS
 });
-const topicTemper = TopicTemper();
+const topicTemper = temper_1.TopicTemper();
 afterEach(async () => topicTemper.flush());
 afterAll(async () => KafkaProducer.disconnect());
 test('write json stream to topic', async () => {

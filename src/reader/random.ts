@@ -1,5 +1,5 @@
 import { StreamGenerator } from '../backend'
-import { Readable } from 'stream'
+import { Readable } from 'tstream'
 import { StreamTracker } from '../stream-tracker'
 
 function randIdx (max: number): number {
@@ -31,7 +31,7 @@ type Opts = {
   width?: number
 }
 
-export default function (options: Opts = {}): StreamGenerator<Readable> {
+export default function (options: Opts = {}): StreamGenerator<Readable<string>> {
   const width = options.width || 10
   const cols = (new Array(width)).fill(null).map(() => {
     return ['string', 'integer', 'number'][randIdx(3)]
@@ -41,14 +41,14 @@ export default function (options: Opts = {}): StreamGenerator<Readable> {
     return cols.map((c) => randValue(c))
   }
 
-  return (length): Readable => {
+  return (length): Readable<string> => {
     length = typeof length === 'undefined' ? 1000 : length
 
     let nRows = 0
 
     console.info(`READ RANDOM ${width}x${length}`)
 
-    const stream = new Readable({
+    const stream = new Readable<string>({
       read: (count): void => {
         while (count--) {
           nRows++

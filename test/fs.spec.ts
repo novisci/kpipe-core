@@ -1,5 +1,6 @@
+import { FileTemper } from './temper'
 const fs = require('fs')
-const fileTemper = require('./temper').FileTemper()
+const fileTemper = FileTemper()
 
 const ppipe = require('util').promisify(require('stream').pipeline)
 

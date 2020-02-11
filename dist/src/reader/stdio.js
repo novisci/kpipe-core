@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const stream_1 = require("stream");
+const tstream_1 = require("tstream");
 function default_1() {
     return () => {
-        const stream = new stream_1.PassThrough({
+        const stream = new tstream_1.PassThrough({
         // autoClose: true
         });
         stream.on('end', () => {

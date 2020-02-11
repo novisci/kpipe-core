@@ -1,17 +1,17 @@
-import { Writable } from 'stream'
+import { Writable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
 type WriterBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'null'
 type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
 
-export default function ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable> {
+export default function ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable<Buffer | string>> {
   if (!type) {
     throw new Error('No writer backend specified in options.type')
   }
 
   // Backend writers return a function which creates new writable streams
   //  given a path
-  let backend: StreamGenerator<Writable>
+  let backend: StreamGenerator<Writable<Buffer | string>>
 
   switch (type) {
     case 'fs': backend = require('./fs')(options); break

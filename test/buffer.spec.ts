@@ -1,9 +1,12 @@
+import { Reader, Writer } from '../index'
+import { FileTemper } from './temper'
+
 const fs = require('fs')
-const rBuf = require('..').Reader({ type: 'buffer' })
-const wBuf = require('..').Writer({ type: 'buffer' })
+const rBuf = Reader({ type: 'buffer' })
+const wBuf = Writer({ type: 'buffer' })
 const ppipe = require('util').promisify(require('stream').pipeline)
 
-const fileTemper = require('./temper').FileTemper()
+const fileTemper = FileTemper()
 afterEach(() => fileTemper.flush())
 
 const testfile = './tests/data/stream.json'

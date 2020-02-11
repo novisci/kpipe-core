@@ -1,4 +1,4 @@
-import { Writable } from 'stream'
+import { Writable } from 'tstream'
 import { StreamGenerator, StreamCb } from '../backend'
 
 const producer = require('../kafka/producer')
@@ -19,10 +19,10 @@ export default function ({
   // objectMode = false,
   producerOpts = {},
   fnKey
-}: KafkaWriterOpts = {}): StreamGenerator<Writable> {
+}: KafkaWriterOpts = {}): StreamGenerator<Writable<{} | string>> {
   producer.connect({ brokers, debug, ...producerOpts })
 
-  return (topic, partition): Writable => {
+  return (topic, partition): Writable<{} | string> => {
     if (!topic) {
       throw Error('topic is required in KafkaProducer.send()')
     }
@@ -75,7 +75,7 @@ export default function ({
     //     })
     // }
 
-    const stream = new Writable({
+    const stream = new Writable<{} | string>({
       objectMode: true,
       write: /* objectMode !== true ? _writeBuf : */ _writeObj,
       final: (cb): void => {

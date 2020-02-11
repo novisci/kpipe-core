@@ -1,9 +1,9 @@
-import { Writable } from 'stream'
+import { Writable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
-export default function (): StreamGenerator<Writable> {
-  return (): Writable => {
-    const stream = new Writable({
+export default function (): StreamGenerator<Writable<any>> {
+  return (): Writable<any> => {
+    const stream = new Writable<any>({
       write: (chunk, enc, cb): void => {
         cb()
       }

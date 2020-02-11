@@ -1,47 +1,39 @@
 "use strict";
-function Temper(options) {
-    if (!(this instanceof Temper)) {
-        return new Temper(options);
+Object.defineProperty(exports, "__esModule", { value: true });
+class Temper {
+    constructor({ prefix, flush } = {}) {
+        this._flush = flush || (async (fn) => { console.info(fn); });
+        this._prefix = prefix || 'temp-';
+        this._temps = [];
     }
-    this._flush = console.info;
-    this._prefix = 'temp-';
-    options = options || {};
-    if (options.prefix) {
-        this._prefix = options.prefix;
+    get() {
+        const t = this._prefix + require('uid-safe').sync(6);
+        this._temps.push(t);
+        return t;
     }
-    if (options.flush) {
-        this._flush = options.flush;
+    async flush() {
+        await Promise.all(this._temps.map(async (t) => {
+            console.info('flushing: ' + t);
+            await this._flush(t);
+        }));
+        this._temps = [];
     }
-    this._temps = [];
-    return this;
 }
-Temper.prototype.get = function () {
-    const t = this._prefix + require('uid-safe').sync(6);
-    this._temps.push(t);
-    return t;
-};
-Temper.prototype.flush = async function () {
-    await Promise.all(this._temps.map(async (t) => {
-        console.info('flushing: ' + t);
-        await this._flush(t);
-    }));
-    this._temps = [];
-};
 /***
  * Generate temporary filenames, delete them on flush
  */
-Temper.FileTemper = function () {
+function FileTemper() {
     const unlink = require('util').promisify(require('fs').unlink);
     return new Temper({
         prefix: 'tempfile-',
-        flush: async (fn) => unlink(fn)
+        flush: async (fn) => { unlink(fn); }
     });
-};
+}
+exports.FileTemper = FileTemper;
 /***
  * Generate temporary topic names, delete the topics on flush
  */
-Temper.TopicTemper = function (options) {
-    options = options || {};
+function TopicTemper() {
     const kafkaAdmin = require('..').KafkaAdmin({
         brokers: process.env.KPIPE_BROKERS
     });
@@ -54,6 +46,6 @@ Temper.TopicTemper = function (options) {
                 .then(() => kafkaAdmin.disconnect());
         }
     });
-};
-module.exports = Temper;
+}
+exports.TopicTemper = TopicTemper;
 //# sourceMappingURL=temper.js.map

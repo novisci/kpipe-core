@@ -8,7 +8,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const AWS = __importStar(require("aws-sdk"));
-const stream_1 = require("stream");
+const tstream_1 = require("tstream");
 const path = __importStar(require("path"));
 function default_1(options = {}) {
     if (!options.bucket || !options.region) {
@@ -22,8 +22,8 @@ function default_1(options = {}) {
     const prefix = options.prefix || '';
     const keyid = options.key;
     return (fn) => {
-        const s3stream = new stream_1.PassThrough();
-        const stream = new stream_1.Writable({
+        const s3stream = new tstream_1.PassThrough();
+        const stream = new tstream_1.Writable({
             write: (chunk, enc, cb) => {
                 s3stream.write(chunk, enc, cb);
             },

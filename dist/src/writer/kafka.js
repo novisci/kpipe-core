@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const stream_1 = require("stream");
+const tstream_1 = require("tstream");
 const producer = require('../kafka/producer');
 function default_1({ brokers = 'localhost:9092', debug = false, 
 // objectMode = false,
@@ -54,7 +54,7 @@ producerOpts = {}, fnKey } = {}) {
         //       setImmediate(() => cb(err))
         //     })
         // }
-        const stream = new stream_1.Writable({
+        const stream = new tstream_1.Writable({
             objectMode: true,
             write: /* objectMode !== true ? _writeBuf : */ _writeObj,
             final: (cb) => {

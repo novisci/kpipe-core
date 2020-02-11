@@ -1,13 +1,13 @@
-import { Readable } from 'stream'
+import { Readable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
-export default function (): StreamGenerator<Readable> {
-  return (buffer: Buffer): Readable => {
+export default function (): StreamGenerator<Readable<Buffer>> {
+  return (buffer: Buffer): Readable<Buffer> => {
     if (!Buffer.isBuffer(buffer)) {
       throw Error('supplied argument must be a buffer')
     }
 
-    const stream = new Readable()
+    const stream = new Readable<Buffer>()
     stream.push(buffer)
     stream.push(null)
     return stream

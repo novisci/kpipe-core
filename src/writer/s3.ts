@@ -1,12 +1,12 @@
 import * as AWS from 'aws-sdk'
-import { PassThrough, Writable } from 'stream'
+import { PassThrough, Writable } from 'tstream'
 import * as path from 'path'
 import { StreamGenerator } from '../backend'
 
 type S3Params = {
   Bucket: string
   Key: string
-  Body: PassThrough
+  Body: PassThrough<Buffer>
   ServerSideEncryption?: 'aws:kms'
   SSEKMSKeyId?: string
 }
@@ -18,7 +18,7 @@ type Opts = {
   key?: string
 }
 
-export default function (options: Opts = {}): StreamGenerator<Writable> {
+export default function (options: Opts = {}): StreamGenerator<Writable<Buffer>> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }
@@ -32,9 +32,9 @@ export default function (options: Opts = {}): StreamGenerator<Writable> {
   const prefix = options.prefix || ''
   const keyid = options.key
 
-  return (fn): Writable => {
-    const s3stream = new PassThrough()
-    const stream = new Writable({
+  return (fn): Writable<Buffer> => {
+    const s3stream = new PassThrough<Buffer>()
+    const stream = new Writable<Buffer>({
       write: (chunk, enc, cb): void => {
         s3stream.write(chunk, enc, cb)
       },

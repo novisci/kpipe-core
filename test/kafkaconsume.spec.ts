@@ -1,5 +1,6 @@
-const { TopicTemper } = require('./temper')
+import { TopicTemper } from './temper'
 const ppipe = require('util').promisify(require('stream').pipeline)
+const topicTemper = TopicTemper()
 
 const kafkaReader = require('..').Reader({
   type: 'kafka',

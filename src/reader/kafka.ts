@@ -1,5 +1,5 @@
 import { KafkaConsumer } from 'node-rdkafka'
-import { Readable } from 'stream'
+import { Readable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
 declare module 'node-rdkafka' {
@@ -55,7 +55,7 @@ export default function ({
   timeout,
   fullMessage = false,
   debug = false
-}: KafkaReaderOpts): StreamGenerator<Readable> {
+}: KafkaReaderOpts): StreamGenerator<Readable<string>> {
   // brokers = brokers || 'localhost:9092'
   // chunkSize = chunkSize || 16
   // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
@@ -63,7 +63,7 @@ export default function ({
 
   let endOfPartition: null|number = null
 
-  return (topic: string, position: Position = {}): Readable => {
+  return (topic: string, position: Position = {}): Readable<string> => {
     console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`)
 
     let nPushed = 0
@@ -165,7 +165,7 @@ export default function ({
       })
     }
 
-    const stream = new Readable({
+    const stream = new Readable<string>({
       objectMode: true,
       read: (): void => {
         if (isEnded) {

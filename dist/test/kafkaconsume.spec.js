@@ -1,6 +1,8 @@
 "use strict";
-const { TopicTemper } = require('./temper');
+Object.defineProperty(exports, "__esModule", { value: true });
+const temper_1 = require("./temper");
 const ppipe = require('util').promisify(require('stream').pipeline);
+const topicTemper = temper_1.TopicTemper();
 const kafkaReader = require('..').Reader({
     type: 'kafka',
     brokers: process.env.KPIPE_BROKERS,

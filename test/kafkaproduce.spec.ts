@@ -1,4 +1,4 @@
-const { TopicTemper } = require('./temper')
+import { TopicTemper } from './temper'
 const { Writer, KafkaAdmin, KafkaProducer } = require('..')
 const ppipe = require('util').promisify(require('stream').pipeline)
 
