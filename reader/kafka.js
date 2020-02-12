@@ -42,8 +42,15 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
     let paused = false
     let lastMsgTime = null
 
+    function endStream () {
+      if (!isEnded) {
+        isEnded = true
+        stream.push(null)
+      }
+    }
+
     function consume () {
-      if (paused) {
+      if (paused || isEnded) {
         return
       }
 
@@ -59,17 +66,17 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       consumer.consume(count, (err, messages) => {
         if (err) {
           stream.emit('error', err)
+          endStream()
           return
         }
 
         if (messages.length === 0) {
           if (timeout && (Date.now() - lastMsgTime) > timeout) {
             console.info('Consumer timeout expired, closing stream...')
-            isEnded = true
-            stream.push(null)
-            return false
+            endStream()
+          } else {
+            setTimeout(() => consume(), 100)
           }
-          setTimeout(() => consume(), 100)
           return
         }
 
@@ -115,8 +122,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         // Check for end of parition (if closeAtEnd is true) and end consumption
         if (closeAtEnd && endOfPartition && lastMsg.offset >= endOfPartition - 1) {
           console.info('End of partition, closing...')
-          isEnded = true
-          stream.push(null)
+          endStream()
           return false
         }
 
@@ -124,7 +130,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         //  required amount
         if (position.count && nPushed >= position.count) {
           console.info('KAFKA: reached end')
-          stream.push(null)
+          endStream()
           return false
         }
       })
@@ -133,7 +139,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
     function installSigintTerminate () {
       process.once('SIGINT', (sig) => {
         process.stderr.write('\n')
-        stream.push(null)
+        endStream()
       })
     }
 
@@ -148,18 +154,16 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
           consumer.once('ready', () => {
             consume()
           })
-          return
+        } else {
+          consume()
         }
-
-        consume()
       }
     })
 
     stream.on('error', (err) => {
       console.error('STREAM event: error')
       console.error(err)
-      // stream.destroy(err)
-      stream.push(null)
+      endStream()
     })
 
     stream.on('close', () => {
@@ -228,7 +232,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
 
     consumer.on('unsubscribed', () => {
       // Invalidate the stream when we unsubscribe
-      stream.push(null)
+      endStream()
     })
 
     // consumer.setDefaultConsumeTimeout(1000)
