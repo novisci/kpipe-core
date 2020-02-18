@@ -70,6 +70,10 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
           return
         }
 
+        if (isEnded) {
+          return
+        }
+
         if (messages.length === 0) {
           if (timeout && (Date.now() - lastMsgTime) > timeout) {
             console.info('Consumer timeout expired, closing stream...')
@@ -120,7 +124,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         }
 
         // Check for end of parition (if closeAtEnd is true) and end consumption
-        if (closeAtEnd && endOfPartition && lastMsg.offset >= endOfPartition - 1) {
+        if (closeAtEnd && (typeof endOfPartition === 'number') && lastMsg.offset >= endOfPartition - 1) {
           console.info('End of partition, closing...')
           endStream()
           return false
