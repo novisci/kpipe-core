@@ -263,7 +263,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
             }
             endOfPartition = marks.highOffset
             console.info('End of partition: ' + endOfPartition)
-            if (closeAtEnd && endOfPartition <= off) {
+            if (closeAtEnd && endOfPartition <= off.offset) {
               console.info('Partition does not contain offset and closeAtEnd is set -- ending stream')
               endStream()
               return
