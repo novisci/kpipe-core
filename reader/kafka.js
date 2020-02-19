@@ -207,7 +207,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
     }
 
     const opts = {
-      'client.id': 'dpipe',
+      'client.id': 'kpipe',
       'metadata.broker.list': brokers,
       'group.id': groupid,
       'enable.auto.commit': false,
