@@ -4,7 +4,7 @@ import { StreamGenerator } from '../backend'
 type ReaderBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'random'
 type ReaderBackendArgs = { type: ReaderBackendType, [key: string]: any}
 
-export default function ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Readable<Buffer | string>> {
+export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Readable<Buffer | string>> {
   if (!type) {
     throw new Error('No reader backend specified in options.type')
   }

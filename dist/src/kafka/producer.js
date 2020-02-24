@@ -21,7 +21,7 @@ async function _connect({ brokers = process.env.KPIPE_BROKERS || 'localhost:9092
     }
     // brokers = brokers || process.env.KPIPE_BROKERS || 'localhost:9092'
     const opts = {
-        'client.id': 'dpipe',
+        'client.id': 'kpipe',
         'metadata.broker.list': brokers,
         'debug': '',
         ...options
@@ -132,7 +132,7 @@ async function _flush() {
         checkDeferred();
     }))
         .then((p) => new Promise((resolve, reject) => {
-        p.flush(10000, (err) => {
+        p.flush(20000, (err) => {
             if (err) {
                 return reject(err);
             }

@@ -185,11 +185,7 @@ export default function ({
     stream.on('error', (err) => {
       console.error('STREAM event: error')
       console.error(err)
-<<<<<<< HEAD
       endStream()
-=======
-      stream.push(null)
->>>>>>> more typesetting and refactoring
     })
 
     stream.on('close', () => {
@@ -285,9 +281,9 @@ export default function ({
               stream.emit('error', err)
               return
             }
-            endOfPartition = marks.highOffset
+            endOfPartition = marks.highOffset as number
             console.info('End of partition: ' + endOfPartition)
-            if (closeAtEnd && endOfPartition <= off.offset) {
+            if (closeAtEnd && typeof off.offset === 'number' && endOfPartition <= off.offset) {
               console.info('Partition does not contain offset and closeAtEnd is set -- ending stream')
               endStream()
               return

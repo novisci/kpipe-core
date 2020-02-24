@@ -24,10 +24,16 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
         let isEnded = false;
         // let paused = false
         let lastMsgTime = Date.now();
+        function endStream() {
+            if (!isEnded) {
+                isEnded = true;
+                stream.push(null);
+            }
+        }
         function consume() {
-            // if (paused) {
-            //   return
-            // }
+            if (isEnded) {
+                return;
+            }
             let count = chunkSize;
             if (position.count) {
                 count = Math.min(count, position.count - nPushed);
@@ -38,16 +44,20 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
             consumer.consume(count, (err, messages) => {
                 if (err) {
                     stream.emit('error', err);
+                    endStream();
+                    return;
+                }
+                if (isEnded) {
                     return;
                 }
                 if (messages.length === 0) {
                     if (timeout && (Date.now() - lastMsgTime) > timeout) {
                         console.info('Consumer timeout expired, closing stream...');
-                        isEnded = true;
-                        stream.push(null);
-                        return false;
+                        endStream();
                     }
-                    setTimeout(() => consume(), 100);
+                    else {
+                        setTimeout(() => consume(), 100);
+                    }
                     return;
                 }
                 // process.stderr.write('$')
@@ -74,17 +84,16 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
                     consumer.commit(cmt);
                 }
                 // Check for end of parition (if closeAtEnd is true) and end consumption
-                if (closeAtEnd && endOfPartition && lastMsg.offset >= endOfPartition - 1) {
+                if (closeAtEnd && (typeof endOfPartition === 'number') && lastMsg.offset >= endOfPartition - 1) {
                     console.info('End of partition, closing...');
-                    isEnded = true;
-                    stream.push(null);
+                    endStream();
                     return false;
                 }
                 // If position.count is specified, end consumption when we've consumed the
                 //  required amount
                 if (position.count && nPushed >= position.count) {
                     console.info('KAFKA: reached end');
-                    stream.push(null);
+                    endStream();
                     return false;
                 }
             });
@@ -92,7 +101,7 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
         function installSigintTerminate() {
             process.once('SIGINT', () => {
                 process.stderr.write('\n');
-                stream.push(null);
+                endStream();
             });
         }
         const stream = new tstream_1.Readable({
@@ -105,15 +114,16 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
                     consumer.once('ready', () => {
                         consume();
                     });
-                    return;
                 }
-                consume();
+                else {
+                    consume();
+                }
             }
         });
         stream.on('error', (err) => {
             console.error('STREAM event: error');
             console.error(err);
-            stream.push(null);
+            endStream();
         });
         stream.on('close', () => {
             console.debug('STREAM event: close');
@@ -150,7 +160,7 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
             }
         }
         const opts = {
-            'client.id': 'dpipe',
+            'client.id': 'kpipe',
             'metadata.broker.list': brokers,
             'group.id': groupid,
             'enable.auto.commit': false,
@@ -175,7 +185,7 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
         });
         consumer.on('unsubscribed', () => {
             // Invalidate the stream when we unsubscribe
-            stream.push(null);
+            endStream();
         });
         // consumer.setDefaultConsumeTimeout(1000)
         function cbConnect(err /*, metadata */) {
@@ -198,6 +208,11 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
                         }
                         endOfPartition = marks.highOffset;
                         console.info('End of partition: ' + endOfPartition);
+                        if (closeAtEnd && typeof off.offset === 'number' && endOfPartition <= off.offset) {
+                            console.info('Partition does not contain offset and closeAtEnd is set -- ending stream');
+                            endStream();
+                            return;
+                        }
                         consumer.assign([off]);
                     });
                 }

@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("../index");
+const reader_1 = require("../src/reader");
+const writer_1 = require("../src/writer");
 const temper_1 = require("./temper");
 const fs = require('fs');
-const rBuf = index_1.Reader({ type: 'buffer' });
-const wBuf = index_1.Writer({ type: 'buffer' });
+const rBuf = reader_1.Reader({ type: 'buffer' });
+const wBuf = writer_1.Writer({ type: 'buffer' });
 const ppipe = require('util').promisify(require('stream').pipeline);
 const fileTemper = temper_1.FileTemper();
 afterEach(() => fileTemper.flush());

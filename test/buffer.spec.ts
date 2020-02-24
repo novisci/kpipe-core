@@ -1,4 +1,5 @@
-import { Reader, Writer } from '../index'
+import { Reader } from '../src/reader'
+import { Writer } from '../src/writer'
 import { FileTemper } from './temper'
 
 const fs = require('fs')

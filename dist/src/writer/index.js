@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function default_1({ type, ...options } = { type: 'buffer' }) {
+function Writer({ type, ...options } = { type: 'buffer' }) {
     if (!type) {
         throw new Error('No writer backend specified in options.type');
     }
@@ -30,5 +30,5 @@ function default_1({ type, ...options } = { type: 'buffer' }) {
     }
     return backend;
 }
-exports.default = default_1;
+exports.Writer = Writer;
 //# sourceMappingURL=index.js.map

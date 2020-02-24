@@ -4,7 +4,7 @@ import { StreamGenerator } from '../backend'
 type WriterBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'null'
 type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
 
-export default function ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable<Buffer | string>> {
+export function Writer ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable<Buffer | string>> {
   if (!type) {
     throw new Error('No writer backend specified in options.type')
   }

@@ -63,7 +63,7 @@ producerOpts = {}, fnKey } = {}) {
                     //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)
                     // })
                     cb();
-                });
+                }).catch((err) => cb(err));
             }
         });
         stream.on('error', (err) => {
