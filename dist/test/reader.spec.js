@@ -1,12 +1,15 @@
 "use strict";
-const Reader = require('..').Reader;
-const streamTypes = ['fs', 's3', 'kafka', 'stdio'];
+Object.defineProperty(exports, "__esModule", { value: true });
+const reader_1 = require("../src/reader");
+// const streamTypes = ['fs', 's3', 'kafka', 'stdio']
 const ppipe = require('util').promisify(require('stream').pipeline);
 describe.each([
     ['fs', {}, ['./tests/data/stream.json']],
-    ['s3', { region: 'us-east-1', bucket: 'novisci-public' }, ['tests/stream.json']],
+    ['s3', { region: 'us-east-1', bucket: 'novisci-public' }, ['tests/stream.json']]
+    // ['kafka', { groupid: 'freddo' }, [ 'topic' ]],
+    // ['stdio', {}, []]
 ])('%s reader', (type, options, args) => {
-    const streamer = Reader(Object.assign({ type }, options));
+    const streamer = reader_1.Reader(Object.assign({ type: type }, options));
     test(`${type} constructor returns function`, () => {
         expect(typeof streamer).toBe('function');
     });

@@ -209,7 +209,7 @@ process.on('exit', () => {
   producerReady.then(() => _disconnect()).catch((err) => console.error(err))
 })
 
-module.exports = {
+const KafkaProducer = {
   connect: _connect,
   send: _send,
   flush: _flush,
@@ -218,3 +218,5 @@ module.exports = {
   deltaStats: _deltaStats,
   metadata: (): {} => Object.assign({}, _metadata)
 }
+
+export default KafkaProducer

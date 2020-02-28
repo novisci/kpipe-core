@@ -1,5 +1,4 @@
-import { PassThrough } from 'tstream'
-import { Writable } from 'stream'
+import { PassThrough, Writable } from 'tstream'
 
 export default function () {
   return (): PassThrough<Buffer> => {
@@ -7,9 +6,9 @@ export default function () {
       // autoClose: true
     })
     stream.on('end', () => {
-      process.stdin.unpipe(stream as Writable)
+      process.stdin.unpipe(stream as Writable<Buffer>)
     })
-    process.stdin.pipe(stream as Writable)
+    process.stdin.pipe(stream as Writable<Buffer>)
     return stream
   }
 }

@@ -1,12 +1,6 @@
 import { Writable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
-declare module 'tstream' {
-  interface Writable<T> {
-    get?(): Buffer
-  }
-}
-
 export default function (): StreamGenerator<Writable<Buffer>> {
   return (src?: string): Writable<Buffer> => {
     src = src || ''
@@ -24,7 +18,9 @@ export default function (): StreamGenerator<Writable<Buffer>> {
       }
     })
 
-    stream.get = (): Buffer => _buffer
+    stream.on('finish', () => {
+      stream.emit('buffer', _buffer)
+    })
 
     return stream
   }

@@ -15,7 +15,9 @@ function default_1() {
                 cb();
             }
         });
-        stream.get = () => _buffer;
+        stream.on('finish', () => {
+            stream.emit('buffer', _buffer);
+        });
         return stream;
     };
 }

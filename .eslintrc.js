@@ -34,6 +34,7 @@ module.exports = {
         'requireLast': false
       }
     }],
+    '@typescript-eslint/no-useless-constructor': 'off',
     '@typescript-eslint/indent': 'off', // This is the job of StandardJS, they are competing rules so we turn off the Typescript one. 
     'no-unused-vars': 'off', // On the fence about using this one, sometimes we import a package that is never used directly. 
     'node/no-unsupported-features/es-syntax': 'off' // Allows us to use Import and Export keywords.

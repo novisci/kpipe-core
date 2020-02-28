@@ -1,8 +1,8 @@
 import { Readable } from 'tstream'
 import { StreamGenerator } from '../backend'
 
-type ReaderBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'random'
-type ReaderBackendArgs = { type: ReaderBackendType, [key: string]: any}
+export type ReaderBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'random'
+export type ReaderBackendArgs = { type: ReaderBackendType, [key: string]: any}
 
 export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Readable<Buffer | string>> {
   if (!type) {

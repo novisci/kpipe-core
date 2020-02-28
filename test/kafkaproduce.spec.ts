@@ -1,5 +1,5 @@
 import { TopicTemper } from './temper'
-const { Writer, KafkaAdmin, KafkaProducer } = require('..')
+import { Writer, KafkaAdmin, KafkaProducer } from '..'
 const ppipe = require('util').promisify(require('stream').pipeline)
 
 const kafkaWriter = Writer({

@@ -33,24 +33,28 @@ test('buffer reader writes to file', async () => {
 
 test('buffer writer reads from file', async () => {
   const dst = wBuf()
+  let buff = Buffer.from('')
+  dst.on('buffer', (b: Buffer) => { buff = b })
   await ppipe(
     fs.createReadStream(testfile),
     dst
   )
   expect(Buffer.compare(
-    dst.get(),
+    buff,
     testData
   )).toBe(0)
 })
 
 test('buffer streams verbatim data', async () => {
   const dst = wBuf()
+  let buff = Buffer.from('')
+  dst.on('buffer', (b: Buffer) => { buff = b })
   await ppipe(
     rBuf(testData),
     dst
   )
   expect(Buffer.compare(
-    dst.get(),
+    buff,
     testData
   )).toBe(0)
 })
