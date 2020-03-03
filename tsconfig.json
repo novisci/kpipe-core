@@ -11,6 +11,10 @@
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "typeRoots": [
+      "./declarations/",
+      "./node_modules/@types",
+    ],
     "paths": {
       "*": [
           "src/*",

@@ -1,14 +1,14 @@
-import { PassThrough, Writable } from 'tstream'
+import { PassThrough } from '../tstream'
 
-export default function () {
+export function bkStdio (options?: {}) {
   return (): PassThrough<Buffer> => {
     const stream = new PassThrough<Buffer>({
       // autoClose: true
     })
     stream.on('end', () => {
-      process.stdin.unpipe(stream as Writable<Buffer>)
+      process.stdin.unpipe(stream)
     })
-    process.stdin.pipe(stream as Writable<Buffer>)
+    process.stdin.pipe(stream)
     return stream
   }
 }

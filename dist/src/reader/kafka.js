@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_rdkafka_1 = require("node-rdkafka");
-const tstream_1 = require("tstream");
+const tstream_1 = require("../tstream");
 function topicConf(topic, seek) {
     if (!seek || typeof seek.partition === 'undefined') {
         return false;
@@ -12,7 +12,7 @@ function topicConf(topic, seek) {
         offset: seek.offset
     };
 }
-function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('uid-safe').sync(6), commit = false, closeAtEnd = true, chunkSize = 16, timeout, fullMessage = false, debug = false }) {
+function bkKafka({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('uid-safe').sync(6), commit = false, closeAtEnd = true, chunkSize = 16, timeout, fullMessage = false, debug = false }) {
     // brokers = brokers || 'localhost:9092'
     // chunkSize = chunkSize || 16
     // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
@@ -233,5 +233,5 @@ function default_1({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('
         return stream;
     };
 }
-exports.default = default_1;
+exports.bkKafka = bkKafka;
 //# sourceMappingURL=kafka.js.map

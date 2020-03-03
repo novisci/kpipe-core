@@ -37,7 +37,7 @@ function TopicTemper() {
     const kafkaAdmin = require('..').KafkaAdmin({
         brokers: process.env.KPIPE_BROKERS
     });
-    return new (require('./temper'))({
+    return new Temper({
         prefix: 'temptopic-',
         flush: async (topic) => {
             await kafkaAdmin.deleteTopic(topic)

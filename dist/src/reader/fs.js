@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const stream_tracker_1 = require("../stream-tracker");
-function default_1(options = {}) {
+function bkFs(options = {}) {
     const prefix = options.prefix || '';
     return (fn) => {
         const p = path.join(prefix, fn);
@@ -28,5 +28,5 @@ function default_1(options = {}) {
         return stream_tracker_1.StreamTracker(stream);
     };
 }
-exports.default = default_1;
+exports.bkFs = bkFs;
 //# sourceMappingURL=fs.js.map

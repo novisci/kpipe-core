@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import * as path from 'path'
 import { StreamGenerator } from '../backend'
-import { Readable } from 'tstream'
+import { Readable } from '../tstream'
 import { StreamTracker } from '../stream-tracker'
 
 type Opts = {
@@ -10,7 +10,7 @@ type Opts = {
   prefix?: string
 }
 
-export default function (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
+export function bkS3 (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 reader requires options.bucket and options.region')
   }

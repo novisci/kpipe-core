@@ -7,138 +7,79 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// declare module 'tstream' {
-const stream = __importStar(require("stream"));
-// type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
-// class internal extends stream {
-//   pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean; }): T {
-//     return super.
-//   }
-// }
-// namespace internal {
-class Stream extends stream.Stream {
-    constructor(opts) {
+const NodeStream = __importStar(require("stream"));
+class Stream extends NodeStream.Stream {
+    constructor(opts = {}) {
         super(opts);
     }
 }
 exports.Stream = Stream;
-class Readable extends stream.Readable {
-    /**
-     * A utility method for creating Readable Streams out of iterators.
-     */
-    static from(iterable, options) {
-        return super.from(iterable, options);
-    }
-    // readable: boolean;
-    // readonly readableHighWaterMark: number;
-    // readonly readableLength: number;
-    // readonly readableObjectMode: boolean;
-    // destroyed: boolean;
-    constructor(opts) {
+class Readable extends NodeStream.Readable {
+    constructor(opts = {}) {
         super(opts);
     }
-    // _read(size: number): void;
-    read(size) {
-        return super.read(size);
-    }
-    // setEncoding(encoding: string): this;
-    // pause(): this;
-    // resume(): this;
-    // isPaused(): boolean;
-    // unpipe(destination?: NodeJS.WritableStream): this;
-    unshift(chunk, encoding) {
-        super.unshift(chunk, encoding);
-    }
-    // wrap(oldStream: NodeJS.ReadableStream): this;
+    // abstract _read (size: number): Out[]
     push(chunk, encoding) {
         return super.push(chunk, encoding);
     }
+    // pipe<NextDuplexOut> (destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>
+    // pipe<NextTransformOut> (destination: Transform<Out, NextTransformOut>, options?: { end?: boolean }): Transform<Out, NextTransformOut>
+    // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+    // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+    pipe(destination, options) {
+        return super.pipe(destination, options);
+    }
 }
 exports.Readable = Readable;
-class Writable extends stream.Writable {
-    // readonly writable: boolean;
-    // readonly writableEnded: boolean;
-    // readonly writableFinished: boolean;
-    // readonly writableHighWaterMark: number;
-    // readonly writableLength: number;
-    // readonly writableObjectMode: boolean;
-    // readonly writableCorked: number;
-    // destroyed: boolean;
-    // constructor(opts?: WritableOptions<T>) {
-    //   super(opts)
-    // }
-    _write(chunk, encoding, callback) {
-        return super._write(chunk, encoding, callback);
-    }
-    _writev(chunks, callback) {
-        if (super._writev) {
-            super._writev(chunks, callback);
-        }
-    }
-    // _destroy(error: Error | null, callback: (error?: Error | null) => void): void;
-    // _final(callback: (error?: Error | null) => void): void;
-    // write (chunk: T, cb?: (error: Error | null | undefined) => void): boolean;
-    write(chunk, encoding, cb) {
-        return super.write(chunk, encoding, cb);
-    }
-    // setDefaultEncoding(encoding: string): this;
-    // end (cb?: () => void): void;
-    // end (chunk: T, cb?: () => void): void;
-    end(chunk, encoding, cb) {
-        super.end(chunk, encoding, cb);
+class Writable extends NodeStream.Writable {
+    constructor(opts = {}) {
+        super(opts);
     }
 }
 exports.Writable = Writable;
-// Note: Duplex extends both Readable and Writable.
-class Duplex extends stream.Duplex {
-    // readonly writable: boolean;
-    // readonly writableEnded: boolean;
-    // readonly writableFinished: boolean;
-    // readonly writableHighWaterMark: number;
-    // readonly writableLength: number;
-    // readonly writableObjectMode: boolean;
-    // readonly writableCorked: number;
-    // constructor(opts?: DuplexOptions<S, T>) {
-    //   super(opts)
-    // }
-    _write(chunk, encoding, callback) {
-        super._write(chunk, encoding, callback);
+class Duplex extends NodeStream.Duplex {
+    constructor(opts = {}) {
+        super(opts);
     }
-    _writev(chunks, callback) {
-        if (super._writev) {
-            super._writev(chunks, callback);
-        }
+    push(chunk, encoding) {
+        return super.push(chunk, encoding);
     }
-    // _destroy(error: Error | null, callback: (error: Error | null) => void): void;
-    // _final(callback: (error?: Error | null) => void): void;
-    // write (chunk: S, cb?: (error: Error | null | undefined) => void): boolean
-    write(chunk, encoding, cb) {
-        return super.write(chunk, encoding, cb);
-    }
-    // setDefaultEncoding(encoding: string): this;
-    // end (cb?: () => void): void;
-    // end (chunk: S, cb?: () => void): void;
-    end(chunk, encoding, cb) {
-        super.end(chunk, encoding, cb);
+    // pipe<NextDuplexOut> (destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>;
+    // pipe<NextTransformOut> (destination: Transform<Out, NextTransformOut>, options?: { end?: boolean }): Transform<Out, NextTransformOut>;
+    // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>;
+    pipe(destination, options) {
+        return super.pipe(destination, options);
     }
 }
 exports.Duplex = Duplex;
-class Transform extends stream.Transform {
-    // constructor(opts?: TransformOptions<S, T>) {
-    //   super(opts)
-    // }
-    _transform(chunk, encoding, callback) {
-        super._transform(chunk, encoding, callback);
+class Transform extends NodeStream.Transform {
+    constructor(opts = {}) {
+        super(opts);
     }
-    _flush(callback) {
-        super._flush(callback);
+    push(chunk, encoding) {
+        return super.push(chunk, encoding);
+    }
+    // pipe<NextDuplexOut>(destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>;
+    // pipe<NextTransformOut>(destination: Transform<Out, NextTransformOut>, options?: { end?: boolean }): Transform<Out, NextTransformOut>;
+    // pipe(destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>;
+    pipe(destination, options) {
+        return super.pipe(destination, options);
     }
 }
 exports.Transform = Transform;
-class PassThrough extends Transform {
+class PassThrough extends NodeStream.PassThrough {
+    constructor(opts = {}) {
+        super(opts);
+    }
+    push(chunk, encoding) {
+        return super.push(chunk, encoding);
+    }
+    // pipe<NextDuplexOut>(destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>;
+    // pipe<NextTransformOut>(destination: Transform<Out, NextTransformOut>, options?: { end?: boolean }): Transform<Out, NextTransformOut>;
+    // pipe(destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>;
+    pipe(destination, options) {
+        return super.pipe(destination, options);
+    }
 }
 exports.PassThrough = PassThrough;
-// }
-// export = internal
-// }
 //# sourceMappingURL=index.js.map

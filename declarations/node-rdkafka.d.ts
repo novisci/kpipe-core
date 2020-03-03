@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'tstream';
+import { Readable, Writable } from '../src/tstream';
 import { EventEmitter } from 'events'
 
 export class Client extends EventEmitter {

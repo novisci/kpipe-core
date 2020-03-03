@@ -1,5 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = require("./fs");
+const s3_1 = require("./s3");
+const stdio_1 = require("./stdio");
+const kafka_1 = require("./kafka");
+const buffer_1 = require("./buffer");
+const null_1 = require("./null");
 function Writer({ type, ...options } = { type: 'buffer' }) {
     if (!type) {
         throw new Error('No writer backend specified in options.type');
@@ -9,22 +15,22 @@ function Writer({ type, ...options } = { type: 'buffer' }) {
     let backend;
     switch (type) {
         case 'fs':
-            backend = require('./fs')(options);
+            backend = fs_1.bkFs(options);
             break;
         case 's3':
-            backend = require('./s3')(options);
+            backend = s3_1.bkS3(options);
             break;
         case 'stdio':
-            backend = require('./stdio')(options);
+            backend = stdio_1.bkStdio(options);
             break;
         case 'kafka':
-            backend = require('./kafka')(options);
+            backend = kafka_1.bkKafka(options);
             break;
         case 'buffer':
-            backend = require('./buffer')(options);
+            backend = buffer_1.bkBuffer(options);
             break;
         case 'null':
-            backend = require('./null')(options);
+            backend = null_1.bkNull(options);
             break;
         default: throw new Error(`Unknown writer type "${type}`);
     }

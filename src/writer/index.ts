@@ -1,5 +1,11 @@
-import { Writable } from 'tstream'
+import { Writable } from '../tstream'
 import { StreamGenerator } from '../backend'
+import { bkFs } from './fs'
+import { bkS3 } from './s3'
+import { bkStdio } from './stdio'
+import { bkKafka } from './kafka'
+import { bkBuffer } from './buffer'
+import { bkNull } from './null'
 
 type WriterBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'null'
 type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
@@ -14,12 +20,12 @@ export function Writer ({ type, ...options }: WriterBackendArgs = { type: 'buffe
   let backend: StreamGenerator<Writable<Buffer | string>>
 
   switch (type) {
-    case 'fs': backend = require('./fs')(options); break
-    case 's3': backend = require('./s3')(options); break
-    case 'stdio': backend = require('./stdio')(options); break
-    case 'kafka': backend = require('./kafka')(options); break
-    case 'buffer': backend = require('./buffer')(options); break
-    case 'null': backend = require('./null')(options); break
+    case 'fs': backend = bkFs(options); break
+    case 's3': backend = bkS3(options); break
+    case 'stdio': backend = bkStdio(options); break
+    case 'kafka': backend = bkKafka(options); break
+    case 'buffer': backend = bkBuffer(options); break
+    case 'null': backend = bkNull(options); break
     default: throw new Error(`Unknown writer type "${type}`)
   }
 

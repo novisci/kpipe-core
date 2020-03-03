@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const reader_1 = require("../src/reader");
+const tstream_1 = require("../src/tstream");
 // const streamTypes = ['fs', 's3', 'kafka', 'stdio']
 const ppipe = require('util').promisify(require('stream').pipeline);
 describe.each([
-    ['fs', {}, ['./tests/data/stream.json']],
+    ['fs', {}, ['./test/data/stream.json']],
     ['s3', { region: 'us-east-1', bucket: 'novisci-public' }, ['tests/stream.json']]
     // ['kafka', { groupid: 'freddo' }, [ 'topic' ]],
     // ['stdio', {}, []]
@@ -15,7 +16,7 @@ describe.each([
     });
     test(`${type} generator returns stream`, async () => {
         const stream = streamer(...args);
-        expect(stream instanceof require('stream').Readable).toBeTruthy();
+        expect(stream instanceof tstream_1.Readable).toBeTruthy();
         await ppipe(stream, require('..').Writer({ type: 'null' })());
     });
 });

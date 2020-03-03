@@ -1,4 +1,4 @@
-import { Stream } from 'tstream'
+import { Stream } from './tstream'
 
 export type StreamCb = (err?: Error) => void
 

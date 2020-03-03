@@ -8,7 +8,7 @@ const ppipe = require('util').promisify(require('stream').pipeline)
 afterEach(() => fileTemper.flush())
 
 test('fs -> fs copy', async () => {
-  const filename = './tests/data/stream.json'
+  const filename = './test/data/stream.json'
   const copyfile = fileTemper.get()
   await ppipe(
     require('..').Reader({ type: 'fs' })(filename),

@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk'
-import { PassThrough, Writable } from 'tstream'
+import { PassThrough, Writable, StreamCallback } from '../tstream'
 import * as path from 'path'
 import { StreamGenerator } from '../backend'
 
@@ -18,7 +18,7 @@ type Opts = {
   key?: string
 }
 
-export default function (options: Opts = {}): StreamGenerator<Writable<Buffer>> {
+export function bkS3 (options: Opts = {}): StreamGenerator<Writable<Buffer>> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }
@@ -35,10 +35,10 @@ export default function (options: Opts = {}): StreamGenerator<Writable<Buffer>> 
   return (fn): Writable<Buffer> => {
     const s3stream = new PassThrough<Buffer>()
     const stream = new Writable<Buffer>({
-      write: (chunk, enc, cb): void => {
+      write: (chunk: Buffer, enc: string, cb: StreamCallback): void => {
         s3stream.write(chunk, enc, cb)
       },
-      final: (cb): void => {
+      final: (cb: StreamCallback): void => {
         s3stream.end()
         const intvl = setInterval(() => {
           if (completed) {

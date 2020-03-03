@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("tstream");
-function default_1() {
+const tstream_1 = require("../tstream");
+function bkStdio(options) {
     return () => {
         const stream = new tstream_1.PassThrough();
         stream.on('finish', () => {
@@ -11,5 +11,5 @@ function default_1() {
         return stream;
     };
 }
-exports.default = default_1;
+exports.bkStdio = bkStdio;
 //# sourceMappingURL=stdio.js.map

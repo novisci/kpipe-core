@@ -14,11 +14,13 @@ const kafkaAdmin = KafkaAdmin({
 
 const topicTemper = TopicTemper()
 
+beforeAll(async () => KafkaProducer().connect())
+
 afterEach(async () => topicTemper.flush())
-afterAll(async () => KafkaProducer.disconnect())
+afterAll(async () => KafkaProducer().disconnect())
 
 test('write json stream to topic', async () => {
-  const filename = './tests/data/stream.json'
+  const filename = './test/data/stream.json'
   const topic = topicTemper.get()
 
   await kafkaAdmin.createTopic(topic, 1, 0, {})
@@ -28,7 +30,7 @@ test('write json stream to topic', async () => {
 
   const xform = require('stream').Transform({
     writableObjectMode: false,
-    readableObjectMode: true, 
+    readableObjectMode: true,
 
     transform: (chunk: Buffer, enc: any, cb: (err?: Error) => void) => {
       chunk.toString().split('\n').forEach((l) => {

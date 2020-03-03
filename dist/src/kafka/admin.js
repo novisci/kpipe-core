@@ -2,7 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_rdkafka_1 = require("node-rdkafka");
 const TIMEOUT = 1000;
-class KafkaAdmin {
+function KafkaAdmin(options = {}) {
+    return new NodeKafkaAdmin(options);
+}
+exports.KafkaAdmin = KafkaAdmin;
+class NodeKafkaAdmin {
     constructor({ brokers = 'localhost:9092' }) {
         this._client = node_rdkafka_1.AdminClient.create({
             'metadata.broker.list': brokers,
@@ -47,8 +51,4 @@ class KafkaAdmin {
         this._client.disconnect();
     }
 }
-function default_1(options = {}) {
-    return new KafkaAdmin(options);
-}
-exports.default = default_1;
 //# sourceMappingURL=admin.js.map

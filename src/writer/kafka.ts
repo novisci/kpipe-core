@@ -1,4 +1,4 @@
-import { Writable } from 'tstream'
+import { Writable, StreamCallback } from '../tstream'
 import { StreamGenerator, StreamCb } from '../backend'
 
 const producer = require('../kafka/producer')
@@ -13,7 +13,7 @@ type KafkaWriterOpts = {
   fnKey?: (msg: StreamObj) => string
 }
 
-export default function ({
+export function bkKafka ({
   brokers = 'localhost:9092',
   debug = false,
   // objectMode = false,
@@ -78,7 +78,7 @@ export default function ({
     const stream = new Writable<{} | string>({
       objectMode: true,
       write: /* objectMode !== true ? _writeBuf : */ _writeObj,
-      final: (cb): void => {
+      final: (cb: StreamCallback): void => {
         producer.flush().then((): void => {
           // Object.entries(stats).map((e) => {
           //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)

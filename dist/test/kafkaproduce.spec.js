@@ -12,10 +12,11 @@ const kafkaAdmin = __1.KafkaAdmin({
     brokers: process.env.KPIPE_BROKERS
 });
 const topicTemper = temper_1.TopicTemper();
+beforeAll(async () => __1.KafkaProducer().connect());
 afterEach(async () => topicTemper.flush());
-afterAll(async () => __1.KafkaProducer.disconnect());
+afterAll(async () => __1.KafkaProducer().disconnect());
 test('write json stream to topic', async () => {
-    const filename = './tests/data/stream.json';
+    const filename = './test/data/stream.json';
     const topic = topicTemper.get();
     await kafkaAdmin.createTopic(topic, 1, 0, {});
     console.info(`Created topic ${topic}`);

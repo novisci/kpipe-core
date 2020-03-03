@@ -10,7 +10,7 @@ const ppipe = require('util').promisify(require('stream').pipeline)
 const fileTemper = FileTemper()
 afterEach(() => fileTemper.flush())
 
-const testfile = './tests/data/stream.json'
+const testfile = './test/data/stream.json'
 const testData = fs.readFileSync(testfile)
 
 test('buffer reader throws when no buffer supplied', () => {

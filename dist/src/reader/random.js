@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("tstream");
+const tstream_1 = require("../tstream");
 const stream_tracker_1 = require("../stream-tracker");
 function randIdx(max) {
     max = Math.floor(max);
@@ -23,7 +23,7 @@ function randValue(type) {
         default: return 'NaN';
     }
 }
-function default_1(options = {}) {
+function bkRandom(options = {}) {
     const width = options.width || 10;
     const cols = (new Array(width)).fill(null).map(() => {
         return ['string', 'integer', 'number'][randIdx(3)];
@@ -52,5 +52,5 @@ function default_1(options = {}) {
         return stream_tracker_1.StreamTracker(stream);
     };
 }
-exports.default = default_1;
+exports.bkRandom = bkRandom;
 //# sourceMappingURL=random.js.map

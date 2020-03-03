@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const AWS = __importStar(require("aws-sdk"));
 const path = __importStar(require("path"));
 const stream_tracker_1 = require("../stream-tracker");
-function default_1(options = {}) {
+function bkS3(options = {}) {
     if (!options.bucket || !options.region) {
         throw new Error('S3 reader requires options.bucket and options.region');
     }
@@ -39,5 +39,5 @@ function default_1(options = {}) {
         return stream_tracker_1.StreamTracker(stream);
     };
 }
-exports.default = default_1;
+exports.bkS3 = bkS3;
 //# sourceMappingURL=s3.js.map

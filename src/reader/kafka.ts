@@ -1,5 +1,5 @@
 import { KafkaConsumer } from 'node-rdkafka'
-import { Readable } from 'tstream'
+import { Readable } from '../tstream'
 import { StreamGenerator } from '../backend'
 
 declare module 'node-rdkafka' {
@@ -46,7 +46,7 @@ type KafkaReaderOpts = {
   debug?: boolean // true/false enable debug logs from node-rdkafka consumer
 }
 
-export default function ({
+export function bkKafka ({
   brokers = 'localhost:9092',
   groupid = 'cgroup-' + require('uid-safe').sync(6),
   commit = false,

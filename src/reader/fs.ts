@@ -1,14 +1,14 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { StreamGenerator } from '../backend'
-import { Readable } from 'tstream'
+import { Readable } from '../tstream'
 import { StreamTracker } from '../stream-tracker'
 
 type Opts = {
   prefix?: string
 }
 
-export default function (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
+export function bkFs (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
   const prefix = options.prefix || ''
 
   return (fn: string): Readable<Buffer> => {

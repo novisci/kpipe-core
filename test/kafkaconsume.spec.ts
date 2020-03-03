@@ -1,14 +1,16 @@
 import { TopicTemper } from './temper'
+import { Reader } from '../src/reader'
+import { KafkaAdmin } from '..'
 const ppipe = require('util').promisify(require('stream').pipeline)
 const topicTemper = TopicTemper()
 
-const kafkaReader = require('..').Reader({
+const kafkaReader = Reader({
   type: 'kafka',
   brokers: process.env.KPIPE_BROKERS,
   objectMode: true
 })
 
-const kafkaAdmin = require('..').KafkaAdmin({
+const kafkaAdmin = KafkaAdmin({
   brokers: process.env.KPIPE_BROKERS
 })
 

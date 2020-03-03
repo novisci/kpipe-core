@@ -48,7 +48,7 @@ export function TopicTemper (): Temper {
     brokers: process.env.KPIPE_BROKERS
   })
 
-  return new (require('./temper'))({
+  return new Temper({
     prefix: 'temptopic-',
     flush: async (topic: string): Promise<void> => {
       await kafkaAdmin.deleteTopic(topic)

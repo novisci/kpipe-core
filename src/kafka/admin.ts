@@ -6,7 +6,19 @@ type KafkaAdminOpts = {
   brokers?: string
 }
 
-class KafkaAdmin {
+interface KafkaAdmin {
+  _client: InternalAdminClient
+  createTopic (topic: string, nParts: number, nReplicas: number, options: {}): Promise<void>
+  deleteTopic (topic: string): Promise<void>
+  createPartitions (topic: string, nParts: number): Promise<void>
+  disconnect (): void
+}
+
+export function KafkaAdmin (options: KafkaAdminOpts = {}): KafkaAdmin {
+  return new NodeKafkaAdmin(options)
+}
+
+class NodeKafkaAdmin implements KafkaAdmin {
   _client: InternalAdminClient
 
   constructor ({ brokers = 'localhost:9092' }: KafkaAdminOpts) {
@@ -53,8 +65,4 @@ class KafkaAdmin {
   disconnect (): void {
     this._client.disconnect()
   }
-}
-
-export default function (options: KafkaAdminOpts = {}): KafkaAdmin {
-  return new KafkaAdmin(options)
 }

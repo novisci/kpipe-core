@@ -8,9 +8,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const AWS = __importStar(require("aws-sdk"));
-const tstream_1 = require("tstream");
+const tstream_1 = require("../tstream");
 const path = __importStar(require("path"));
-function default_1(options = {}) {
+function bkS3(options = {}) {
     if (!options.bucket || !options.region) {
         throw new Error('S3 writer requires options.bucket and options.region');
     }
@@ -73,5 +73,5 @@ function default_1(options = {}) {
         return stream;
     };
 }
-exports.default = default_1;
+exports.bkS3 = bkS3;
 //# sourceMappingURL=s3.js.map

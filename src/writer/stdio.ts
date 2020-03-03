@@ -1,7 +1,7 @@
-import { PassThrough, Writable } from 'tstream'
+import { PassThrough, Writable } from '../tstream'
 import { StreamGenerator } from '../backend'
 
-export default function (): StreamGenerator<Writable<Buffer>> {
+export function bkStdio (options?: {}): StreamGenerator<Writable<Buffer>> {
   return (): Writable<Buffer> => {
     const stream = new PassThrough<Buffer>()
     stream.on('finish', () => {

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("tstream");
-function default_1() {
+const tstream_1 = require("../tstream");
+function bkBuffer(options) {
     return (buffer) => {
         if (!Buffer.isBuffer(buffer)) {
             throw Error('supplied argument must be a buffer');
@@ -12,5 +12,5 @@ function default_1() {
         return stream;
     };
 }
-exports.default = default_1;
+exports.bkBuffer = bkBuffer;
 //# sourceMappingURL=buffer.js.map

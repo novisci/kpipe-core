@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("tstream");
+const tstream_1 = require("../tstream");
 const producer = require('../kafka/producer');
-function default_1({ brokers = 'localhost:9092', debug = false, 
+function bkKafka({ brokers = 'localhost:9092', debug = false, 
 // objectMode = false,
 producerOpts = {}, fnKey } = {}) {
     producer.connect({ brokers, debug, ...producerOpts });
@@ -73,5 +73,5 @@ producerOpts = {}, fnKey } = {}) {
         return stream;
     };
 }
-exports.default = default_1;
+exports.bkKafka = bkKafka;
 //# sourceMappingURL=kafka.js.map
