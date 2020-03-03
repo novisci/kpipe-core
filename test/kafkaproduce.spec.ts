@@ -14,7 +14,7 @@ const kafkaAdmin = KafkaAdmin({
 
 const topicTemper = TopicTemper()
 
-beforeAll(async () => KafkaProducer().connect())
+// beforeAll(async () => KafkaProducer().connect())
 
 afterEach(async () => topicTemper.flush())
 afterAll(async () => KafkaProducer().disconnect())

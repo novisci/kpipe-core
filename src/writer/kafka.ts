@@ -1,7 +1,6 @@
 import { Writable, StreamCallback } from '../tstream'
 import { StreamGenerator, StreamCb } from '../backend'
-
-const producer = require('../kafka/producer')
+import { KafkaProducer } from '../kafka/producer'
 
 type StreamObj = Buffer|string|{ key?: string, [key: string]: any }
 
@@ -20,7 +19,9 @@ export function bkKafka ({
   producerOpts = {},
   fnKey
 }: KafkaWriterOpts = {}): StreamGenerator<Writable<{} | string>> {
+  const producer = KafkaProducer()
   producer.connect({ brokers, debug, ...producerOpts })
+    .catch((e) => console.error(e))
 
   return (topic, partition): Writable<{} | string> => {
     if (!topic) {

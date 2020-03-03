@@ -1,11 +1,13 @@
 import { Reader, ReaderBackendType } from '../src/reader'
-import { Readable } from '../src/tstream'
+// import { Readable } from '../src/tstream'
+import * as NodeStream from 'stream'
+import * as util from 'util'
 
 // const streamTypes = ['fs', 's3', 'kafka', 'stdio']
 
 const ppipe = require('util').promisify(require('stream').pipeline)
 
-type TestArgs = [ReaderBackendType, {}, string[]]
+// type TestArgs = [ReaderBackendType, {}, string[]]
 
 describe.each([
   ['fs', {}, [ './test/data/stream.json' ]],
@@ -21,7 +23,7 @@ describe.each([
 
   test(`${type} generator returns stream`, async () => {
     const stream = streamer(...args)
-    expect(stream instanceof Readable).toBeTruthy()
+    expect(stream instanceof NodeStream.Readable).toBeTruthy()
     await ppipe(
       stream,
       require('..').Writer({ type: 'null' })()

@@ -12,7 +12,7 @@ const kafkaAdmin = __1.KafkaAdmin({
     brokers: process.env.KPIPE_BROKERS
 });
 const topicTemper = temper_1.TopicTemper();
-beforeAll(async () => __1.KafkaProducer().connect());
+// beforeAll(async () => KafkaProducer().connect())
 afterEach(async () => topicTemper.flush());
 afterAll(async () => __1.KafkaProducer().disconnect());
 test('write json stream to topic', async () => {

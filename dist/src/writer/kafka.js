@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tstream_1 = require("../tstream");
-const producer = require('../kafka/producer');
+const producer_1 = require("../kafka/producer");
 function bkKafka({ brokers = 'localhost:9092', debug = false, 
 // objectMode = false,
 producerOpts = {}, fnKey } = {}) {
-    producer.connect({ brokers, debug, ...producerOpts });
+    const producer = producer_1.KafkaProducer();
+    producer.connect({ brokers, debug, ...producerOpts })
+        .catch((e) => console.error(e));
     return (topic, partition) => {
         if (!topic) {
             throw Error('topic is required in KafkaProducer.send()');

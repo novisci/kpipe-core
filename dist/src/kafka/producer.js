@@ -19,7 +19,6 @@ exports.KafkaProducer = KafkaProducer;
 class ProducerImpl {
     constructor() {
         this.isConnected = false;
-        this.producerReady = Promise.reject(Error('Producer not connected'));
         this._metadata = {};
         this._stats = {};
         this._deferredMsgs = 0;
@@ -35,6 +34,9 @@ class ProducerImpl {
      */
     async connect(options = {}) {
         if (this.isConnected) {
+            if (!this.producerReady) {
+                throw Error('Producer is connected without client promise');
+            }
             return this.producerReady;
         }
         // brokers = brokers || process.env.KPIPE_BROKERS || 'localhost:9092'
@@ -42,7 +44,6 @@ class ProducerImpl {
         const opts = {
             'client.id': 'kpipe',
             'metadata.broker.list': brokers,
-            'debug': '',
             ...rest
         };
         if (debug) {
@@ -113,9 +114,9 @@ class ProducerImpl {
      *
      */
     async _produce(topic, message, key, partition) {
-        // if (!producer) {
-        //   throw Error('producer connection has gone away')
-        // }
+        if (!this.producerReady) {
+            return Promise.reject(Error('producer is not connected'));
+        }
         return this.producerReady.then((p) => {
             try {
                 p.produce(topic, partition, message, key, null);
@@ -144,6 +145,9 @@ class ProducerImpl {
      *
      */
     async flush() {
+        if (!this.producerReady) {
+            return Promise.reject(Error('producer is not connected'));
+        }
         return this.producerReady
             .then((p) => new Promise((resolve) => {
             const checkDeferred = () => {
@@ -169,7 +173,12 @@ class ProducerImpl {
      *
      */
     async disconnect() {
-        // if (producer) {
+        if (!this.isConnected) {
+            return Promise.resolve();
+        }
+        if (!this.producerReady) {
+            return Promise.reject(Error('producer is not connected'));
+        }
         return this.producerReady
             .then(() => this.flush())
             .then((p) => new Promise((resolve, reject) => {
@@ -178,12 +187,11 @@ class ProducerImpl {
                     return reject(err);
                 }
                 // producer = undefined
-                this.producerReady = Promise.reject(Error('Producer not connected'));
+                this.producerReady = undefined; // Promise.reject(Error('Producer not connected'))
                 this.isConnected = false;
                 resolve();
             });
         }));
-        // }
     }
     /**
      * Compare current stats to ones previously captured

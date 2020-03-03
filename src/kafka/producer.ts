@@ -10,6 +10,9 @@ type ConnectOpts = {
   debug?: boolean
   [key: string]: any
 }
+type ProducerOpts = {
+  [key: string]: string | boolean | number
+}
 
 interface KafkaProducer {
   connect (options?: ConnectOpts): Promise<Producer>
@@ -19,7 +22,7 @@ interface KafkaProducer {
   stats (): Stats
   deltaStats (prev: Stats): Stats
   metadata (): {}
-  producerReady: Promise<Producer>
+  producerReady: Promise<Producer> | undefined
 }
 
 // let producer: KafkaProducer
@@ -35,7 +38,7 @@ export function KafkaProducer (): KafkaProducer {
 
 class ProducerImpl implements KafkaProducer {
   isConnected = false
-  producerReady: Promise<Producer> = Promise.reject(Error('Producer not connected'))
+  producerReady: Promise<Producer> | undefined // = Promise.reject(Error('Producer not connected'))
   _metadata: {} = {}
   _stats: Stats = {}
   _deferredMsgs = 0
@@ -54,6 +57,9 @@ class ProducerImpl implements KafkaProducer {
    */
   async connect (options: ConnectOpts = {}): Promise<Producer> {
     if (this.isConnected) {
+      if (!this.producerReady) {
+        throw Error('Producer is connected without client promise')
+      }
       return this.producerReady
     }
 
@@ -64,10 +70,9 @@ class ProducerImpl implements KafkaProducer {
       ...rest
     } = options
 
-    const opts = {
+    const opts: ProducerOpts = {
       'client.id': 'kpipe',
       'metadata.broker.list': brokers,
-      'debug': '',
       ...rest
     }
 
@@ -165,9 +170,9 @@ class ProducerImpl implements KafkaProducer {
     key?: Buffer|string|null,
     partition?: number
   ): Promise<any> {
-    // if (!producer) {
-    //   throw Error('producer connection has gone away')
-    // }
+    if (!this.producerReady) {
+      return Promise.reject(Error('producer is not connected'))
+    }
 
     return this.producerReady.then((p) => {
       try {
@@ -197,6 +202,10 @@ class ProducerImpl implements KafkaProducer {
    *
    */
   async flush (): Promise<Producer> {
+    if (!this.producerReady) {
+      return Promise.reject(Error('producer is not connected'))
+    }
+
     return this.producerReady
       .then((p) => new Promise<Producer>((resolve) => {
         const checkDeferred = (): void => {
@@ -222,7 +231,14 @@ class ProducerImpl implements KafkaProducer {
    *
    */
   async disconnect (): Promise<void> {
-    // if (producer) {
+    if (!this.isConnected) {
+      return Promise.resolve()
+    }
+
+    if (!this.producerReady) {
+      return Promise.reject(Error('producer is not connected'))
+    }
+
     return this.producerReady
       .then(() => this.flush())
       .then((p) => new Promise((resolve, reject) => {
@@ -231,12 +247,11 @@ class ProducerImpl implements KafkaProducer {
             return reject(err)
           }
           // producer = undefined
-          this.producerReady = Promise.reject(Error('Producer not connected'))
+          this.producerReady = undefined // Promise.reject(Error('Producer not connected'))
           this.isConnected = false
           resolve()
         })
       }))
-    // }
   }
 
   /**
