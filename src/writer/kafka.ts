@@ -19,9 +19,7 @@ export function bkKafka ({
   producerOpts = {},
   fnKey
 }: KafkaWriterOpts = {}): StreamGenerator<Writable<{} | string>> {
-  const producer = KafkaProducer()
-  producer.connect({ brokers, debug, ...producerOpts })
-    .catch((e) => console.error(e))
+  KafkaProducer.connect({ brokers, debug, ...producerOpts })
 
   return (topic, partition): Writable<{} | string> => {
     if (!topic) {
@@ -59,7 +57,7 @@ export function bkKafka ({
         message = Buffer.from(JSON.stringify(obj))
       }
 
-      producer.send(topic, message, key, partition)
+      KafkaProducer.send(topic, message, key, partition)
         .then(() => setImmediate(cb))
         .catch((err: Error|undefined) => {
           // stream.destroy()
@@ -80,7 +78,7 @@ export function bkKafka ({
       objectMode: true,
       write: /* objectMode !== true ? _writeBuf : */ _writeObj,
       final: (cb: StreamCallback): void => {
-        producer.flush().then((): void => {
+        KafkaProducer.flush().then((): void => {
           // Object.entries(stats).map((e) => {
           //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)
           // })

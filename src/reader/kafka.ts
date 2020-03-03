@@ -56,11 +56,6 @@ export function bkKafka ({
   fullMessage = false,
   debug = false
 }: KafkaReaderOpts): StreamGenerator<Readable<string>> {
-  // brokers = brokers || 'localhost:9092'
-  // chunkSize = chunkSize || 16
-  // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
-  // groupid = groupid || 'cgroup-' + require('uid-safe').sync(6)
-
   let endOfPartition: null|number = null
 
   return (topic: string, position: Position = {}): Readable<string> => {
@@ -68,17 +63,16 @@ export function bkKafka ({
 
     let nPushed = 0
     let isEnded = false
-    // let paused = false
     let lastMsgTime = Date.now()
 
-    function endStream () {
+    function endStream (): void {
       if (!isEnded) {
         isEnded = true
         stream.push(null)
       }
     }
 
-    function consume () {
+    function consume (): void {
       if (isEnded) {
         return
       }
@@ -113,7 +107,6 @@ export function bkKafka ({
           return
         }
 
-        // process.stderr.write('$')
         lastMsgTime = Date.now()
         const msgs = messages.map((m) => {
           if (fullMessage) {

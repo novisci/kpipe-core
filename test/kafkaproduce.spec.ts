@@ -17,7 +17,7 @@ const topicTemper = TopicTemper()
 // beforeAll(async () => KafkaProducer().connect())
 
 afterEach(async () => topicTemper.flush())
-afterAll(async () => KafkaProducer().disconnect())
+afterAll(async () => KafkaProducer.disconnect())
 
 test('write json stream to topic', async () => {
   const filename = './test/data/stream.json'

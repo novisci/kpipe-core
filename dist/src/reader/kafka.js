@@ -13,16 +13,11 @@ function topicConf(topic, seek) {
     };
 }
 function bkKafka({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('uid-safe').sync(6), commit = false, closeAtEnd = true, chunkSize = 16, timeout, fullMessage = false, debug = false }) {
-    // brokers = brokers || 'localhost:9092'
-    // chunkSize = chunkSize || 16
-    // closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
-    // groupid = groupid || 'cgroup-' + require('uid-safe').sync(6)
     let endOfPartition = null;
     return (topic, position = {}) => {
         console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`);
         let nPushed = 0;
         let isEnded = false;
-        // let paused = false
         let lastMsgTime = Date.now();
         function endStream() {
             if (!isEnded) {
@@ -60,7 +55,6 @@ function bkKafka({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('ui
                     }
                     return;
                 }
-                // process.stderr.write('$')
                 lastMsgTime = Date.now();
                 const msgs = messages.map((m) => {
                     if (fullMessage) {

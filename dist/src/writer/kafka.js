@@ -5,9 +5,7 @@ const producer_1 = require("../kafka/producer");
 function bkKafka({ brokers = 'localhost:9092', debug = false, 
 // objectMode = false,
 producerOpts = {}, fnKey } = {}) {
-    const producer = producer_1.KafkaProducer();
-    producer.connect({ brokers, debug, ...producerOpts })
-        .catch((e) => console.error(e));
+    producer_1.KafkaProducer.connect({ brokers, debug, ...producerOpts });
     return (topic, partition) => {
         if (!topic) {
             throw Error('topic is required in KafkaProducer.send()');
@@ -41,7 +39,7 @@ producerOpts = {}, fnKey } = {}) {
             else {
                 message = Buffer.from(JSON.stringify(obj));
             }
-            producer.send(topic, message, key, partition)
+            producer_1.KafkaProducer.send(topic, message, key, partition)
                 .then(() => setImmediate(cb))
                 .catch((err) => {
                 // stream.destroy()
@@ -60,7 +58,7 @@ producerOpts = {}, fnKey } = {}) {
             objectMode: true,
             write: /* objectMode !== true ? _writeBuf : */ _writeObj,
             final: (cb) => {
-                producer.flush().then(() => {
+                producer_1.KafkaProducer.flush().then(() => {
                     // Object.entries(stats).map((e) => {
                     //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)
                     // })

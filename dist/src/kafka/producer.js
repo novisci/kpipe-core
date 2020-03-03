@@ -5,17 +5,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const node_rdkafka_1 = require("node-rdkafka");
 const ErrorCode = node_rdkafka_1.CODES.ERRORS;
-// let producer: KafkaProducer
-function KafkaProducer() {
-    // if (!producer) {
-    //   producer = new ProducerImpl()
-    //   process.on('exit', () => {
-    //     producer.producerReady.then((p) => p.disconnect()).catch((err) => console.error(err))
-    //   })
-    // }
-    return ProducerImpl.getInstance();
-}
-exports.KafkaProducer = KafkaProducer;
+// export function KafkaProducer (): KafkaProducer {
+//   return ProducerImpl.getInstance()
+// }
 class ProducerImpl {
     constructor() {
         this.isConnected = false;
@@ -39,7 +31,6 @@ class ProducerImpl {
             }
             return this.producerReady;
         }
-        // brokers = brokers || process.env.KPIPE_BROKERS || 'localhost:9092'
         const { brokers = process.env.KPIPE_BROKERS || 'localhost:9092', debug = false, ...rest } = options;
         const opts = {
             'client.id': 'kpipe',
@@ -50,10 +41,6 @@ class ProducerImpl {
             opts.debug = 'broker,topic';
         }
         this._deferredMsgs = 0;
-        // producer = new Producer(opts)
-        // producer.on('disconnected', (arg) => {
-        //   console.info('Producer disconnected ' + JSON.stringify(arg))
-        // })
         this.producerReady = new Promise((resolve) => {
             const producer = new node_rdkafka_1.Producer(opts);
             producer.on('disconnected', (arg) => {
@@ -94,15 +81,9 @@ class ProducerImpl {
      *
      */
     async send(topic, message, key, partition) {
-        // if (typeof message !== 'string' && !Buffer.isBuffer(message)) {
-        //   throw Error('message must be a buffer or a string')
-        // }
         if (!this.isConnected) {
             throw Error('produce() called before connect()');
         }
-        // if (key && typeof key !== 'string' && !Buffer.isBuffer(key)) {
-        //   throw Error('key must be a buffer or a string')
-        // }
         if (key) {
             key = Buffer.isBuffer(key) ? key : Buffer.from(key);
         }
@@ -122,7 +103,6 @@ class ProducerImpl {
                 p.produce(topic, partition, message, key, null);
                 this._counter(topic);
                 this._deferredMsgs--;
-                // return p
             }
             catch (err) {
                 if (ErrorCode.ERR__QUEUE_FULL === err.code) {
@@ -204,4 +184,5 @@ class ProducerImpl {
         return delta;
     }
 }
+exports.KafkaProducer = ProducerImpl.getInstance();
 //# sourceMappingURL=producer.js.map

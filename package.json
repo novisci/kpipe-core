@@ -1,6 +1,6 @@
 {
   "name": "kpipe-core",
-  "version": "0.9.15",
+  "version": "0.10.0",
   "description": "Core IO and streams for kpipe",
   "main": "dist/index.js",
   "scripts": {
