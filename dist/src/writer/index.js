@@ -6,6 +6,14 @@ const stdio_1 = require("./stdio");
 const kafka_1 = require("./kafka");
 const buffer_1 = require("./buffer");
 const null_1 = require("./null");
+const writerBackends = ['fs', 's3', 'stdio', 'kafka', 'buffer', 'null'];
+function isWriterBackend(s) {
+    if (writerBackends.includes(s)) {
+        return true;
+    }
+    return false;
+}
+exports.isWriterBackend = isWriterBackend;
 function Writer({ type, ...options } = { type: 'buffer' }) {
     if (!type) {
         throw new Error('No writer backend specified in options.type');

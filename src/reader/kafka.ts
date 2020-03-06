@@ -55,7 +55,7 @@ export function bkKafka ({
   timeout,
   fullMessage = false,
   debug = false
-}: KafkaReaderOpts): StreamGenerator<Readable<string>> {
+}: KafkaReaderOpts): StreamGenerator<string> {
   let endOfPartition: null|number = null
 
   return (topic: string, position: Position = {}): Readable<string> => {

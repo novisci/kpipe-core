@@ -1,4 +1,4 @@
-import { Readable } from './tstream'
+import { Readable } from './tstream/index'
 
 /***
  * Small utility to track a (non-object) stream's data event and report

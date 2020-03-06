@@ -7,17 +7,24 @@ import { bkKafka } from './kafka'
 import { bkBuffer } from './buffer'
 import { bkRandom } from './random'
 
-export type ReaderBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'random'
+const readerBackends = ['fs', 's3', 'stdio', 'kafka', 'buffer', 'random'] as const
+export type ReaderBackendType = typeof readerBackends[number]
 export type ReaderBackendArgs = { type: ReaderBackendType, [key: string]: any}
+export function isReaderBackend (s: string): s is ReaderBackendType {
+  if ((readerBackends as readonly string[]).includes(s)) {
+    return true
+  }
+  return false
+}
 
-export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Readable<Buffer | string>> {
+export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Buffer | string> {
   if (!type) {
     throw new Error('No reader backend specified in options.type')
   }
 
   // Backend readers return a function which creates new readable streams
   //  given a path
-  let backend: StreamGenerator<Readable<Buffer | string>>
+  let backend: StreamGenerator<Buffer | string>
 
   switch (type) {
     case 'fs': backend = bkFs(options); break

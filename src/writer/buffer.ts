@@ -1,7 +1,7 @@
 import { Writable, StreamCallback } from '../tstream'
 import { StreamGenerator } from '../backend'
 
-export function bkBuffer (options?: {}): StreamGenerator<Writable<Buffer>> {
+export function bkBuffer (options?: {}): StreamGenerator<Buffer> {
   return (src?: string): Writable<Buffer> => {
     src = src || ''
     if (!Buffer.isBuffer(src) && typeof src !== 'string') {

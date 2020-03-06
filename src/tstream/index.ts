@@ -23,6 +23,15 @@ export class Readable<Out> extends NodeStream.Readable {
   // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
 
   // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+  // pipe<Out> (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+  // pipe (destination: Writable<Out>, options?: { end?: boolean}): Writable<Out>
+  // pipe<NextDuplexOut> (destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>
+
+  // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out> {
+  //   return super.pipe(destination, options)
+  // }
+  // pipe<Writable<Out>> (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+
   pipe<T extends NodeJS.WritableStream> (destination: T, options?: { end?: boolean }): T {
     return super.pipe(destination, options)
   }
@@ -31,6 +40,10 @@ export class Readable<Out> extends NodeStream.Readable {
 export class Writable<In> extends NodeStream.Writable {
   constructor (opts = {}) {
     super(opts)
+  }
+
+  write (chunk: In, encoding: string, callback: Function): void {
+    super.write(chunk, encoding, callback)
   }
 
   // abstract _write(chunk: In, encoding: string, callback: Function): void;

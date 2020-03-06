@@ -5,9 +5,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const node_rdkafka_1 = require("node-rdkafka");
 const ErrorCode = node_rdkafka_1.CODES.ERRORS;
-// export function KafkaProducer (): KafkaProducer {
-//   return ProducerImpl.getInstance()
-// }
 class ProducerImpl {
     constructor() {
         this.isConnected = false;
@@ -24,14 +21,13 @@ class ProducerImpl {
     /**
      *
      */
-    async connect(options = {}) {
+    async connect({ brokers = process.env.KPIPE_BROKERS || 'localhost:9092', debug = false, ...rest } = {}) {
         if (this.isConnected) {
             if (!this.producerReady) {
                 throw Error('Producer is connected without client promise');
             }
             return this.producerReady;
         }
-        const { brokers = process.env.KPIPE_BROKERS || 'localhost:9092', debug = false, ...rest } = options;
         const opts = {
             'client.id': 'kpipe',
             'metadata.broker.list': brokers,

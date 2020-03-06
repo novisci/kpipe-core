@@ -18,7 +18,7 @@ export function bkKafka ({
   // objectMode = false,
   producerOpts = {},
   fnKey
-}: KafkaWriterOpts = {}): StreamGenerator<Writable<{} | string>> {
+}: KafkaWriterOpts = {}): StreamGenerator<{} | string> {
   KafkaProducer.connect({ brokers, debug, ...producerOpts })
 
   return (topic, partition): Writable<{} | string> => {

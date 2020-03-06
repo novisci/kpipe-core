@@ -7,17 +7,24 @@ import { bkKafka } from './kafka'
 import { bkBuffer } from './buffer'
 import { bkNull } from './null'
 
-type WriterBackendType = 'fs'|'s3'|'stdio'|'kafka'|'buffer'|'null'
-type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
+const writerBackends = ['fs', 's3', 'stdio', 'kafka', 'buffer', 'null'] as const
+export type WriterBackendType = typeof writerBackends[number]
+export type WriterBackendArgs = { type: WriterBackendType, [key: string]: any}
+export function isWriterBackend (s: string): s is WriterBackendType {
+  if ((writerBackends as readonly string[]).includes(s)) {
+    return true
+  }
+  return false
+}
 
-export function Writer ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Writable<Buffer | string>> {
+export function Writer ({ type, ...options }: WriterBackendArgs = { type: 'buffer' }): StreamGenerator<Buffer | string> {
   if (!type) {
     throw new Error('No writer backend specified in options.type')
   }
 
   // Backend writers return a function which creates new writable streams
   //  given a path
-  let backend: StreamGenerator<Writable<Buffer | string>>
+  let backend: StreamGenerator<Buffer | string>
 
   switch (type) {
     case 'fs': backend = bkFs(options); break

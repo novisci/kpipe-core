@@ -10,7 +10,7 @@ type Opts = {
   prefix?: string
 }
 
-export function bkS3 (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
+export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 reader requires options.bucket and options.region')
   }

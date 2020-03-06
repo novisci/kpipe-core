@@ -31,7 +31,7 @@ type Opts = {
   width?: number
 }
 
-export function bkRandom (options: Opts = {}): StreamGenerator<Readable<string>> {
+export function bkRandom (options: Opts = {}): StreamGenerator<string> {
   const width = options.width || 10
   const cols = (new Array(width)).fill(null).map(() => {
     return ['string', 'integer', 'number'][randIdx(3)]

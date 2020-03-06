@@ -18,7 +18,7 @@ type Opts = {
   key?: string
 }
 
-export function bkS3 (options: Opts = {}): StreamGenerator<Writable<Buffer>> {
+export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }

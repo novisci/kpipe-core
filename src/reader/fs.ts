@@ -8,7 +8,7 @@ type Opts = {
   prefix?: string
 }
 
-export function bkFs (options: Opts = {}): StreamGenerator<Readable<Buffer>> {
+export function bkFs (options: Opts = {}): StreamGenerator<Buffer> {
   const prefix = options.prefix || ''
 
   return (fn: string): Readable<Buffer> => {

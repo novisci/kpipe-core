@@ -25,9 +25,6 @@ interface KafkaProducer {
   producerReady: Promise<Producer> | undefined
 }
 
-// export function KafkaProducer (): KafkaProducer {
-//   return ProducerImpl.getInstance()
-// }
 class ProducerImpl implements KafkaProducer {
   isConnected = false
   producerReady: Promise<Producer> | undefined
@@ -47,19 +44,17 @@ class ProducerImpl implements KafkaProducer {
   /**
    *
    */
-  async connect (options: ConnectOpts = {}): Promise<Producer> {
+  async connect ({
+    brokers = process.env.KPIPE_BROKERS || 'localhost:9092',
+    debug = false,
+    ...rest
+  }: ConnectOpts = {}): Promise<Producer> {
     if (this.isConnected) {
       if (!this.producerReady) {
         throw Error('Producer is connected without client promise')
       }
       return this.producerReady
     }
-
-    const {
-      brokers = process.env.KPIPE_BROKERS || 'localhost:9092',
-      debug = false,
-      ...rest
-    } = options
 
     const opts: ProducerOpts = {
       'client.id': 'kpipe',
@@ -106,7 +101,7 @@ class ProducerImpl implements KafkaProducer {
   /**
    *
    */
-  _counter (topic: string): void {
+  private _counter (topic: string): void {
     if (!this._stats[topic]) {
       this._stats[topic] = 0
     }
@@ -142,7 +137,7 @@ class ProducerImpl implements KafkaProducer {
   /**
    *
    */
-  async _produce (
+  private async _produce (
     topic: string,
     message: Buffer|string,
     key?: Buffer|string|null,

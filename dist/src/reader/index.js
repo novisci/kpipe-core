@@ -6,6 +6,14 @@ const stdio_1 = require("./stdio");
 const kafka_1 = require("./kafka");
 const buffer_1 = require("./buffer");
 const random_1 = require("./random");
+const readerBackends = ['fs', 's3', 'stdio', 'kafka', 'buffer', 'random'];
+function isReaderBackend(s) {
+    if (readerBackends.includes(s)) {
+        return true;
+    }
+    return false;
+}
+exports.isReaderBackend = isReaderBackend;
 function Reader({ type, ...options } = { type: 'buffer' }) {
     if (!type) {
         throw new Error('No reader backend specified in options.type');
