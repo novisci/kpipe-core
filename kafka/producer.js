@@ -113,7 +113,7 @@ async function _produce (topic, message, key, partition) {
         p.poll()
 
         // Just delay this thing a bit and pass the params again
-        setTimeout(() => _produce(topic, message, key), 500)
+        setTimeout(() => _produce(topic, message, key, partition), 500)
       } else {
         _deferredMsgs--
         return Promise.reject(err)
@@ -160,13 +160,21 @@ async function _disconnect () {
   if (producer) {
     return producerReady
       .then(() => _flush())
-      .then((p) => new Promise((resolve, reject) => {
+      .catch((err) => {
+        console.error('Producer flush error')
+        console.error(err)
+        return producerReady
+      })
+      .then((p) => new Promise((resolve) => {
+        producer = null
+        producerReady = false
         p.disconnect(10000, (err) => {
           if (err) {
-            return reject(err)
+            console.error('Producer disconnect error')
+            console.error(err)
           }
-          producer = null
-          producerReady = false
+          // producer = null
+          // producerReady = false
           resolve()
         })
       }))

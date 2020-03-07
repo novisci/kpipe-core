@@ -9,7 +9,7 @@ module.exports = function ({ type, ...options } = {}) {
 
   switch (type) {
     case 'fs': backend = require('./fs')(options); break
-    case 's3': backend = require('./s3')(options); break
+    case 's3': backend = require('./s3_chunked')(options); break
     case 'stdio': backend = require('./stdio')(options); break
     case 'kafka': backend = require('./kafka')(options); break
     case 'buffer': backend = require('./buffer')(options); break

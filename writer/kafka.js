@@ -1,6 +1,13 @@
 const { Writable } = require('stream')
 const producer = require('../kafka/producer')
 
+const MAX_RETRIES = 5
+const MAX_WAITMS = 10000
+
+function backoffTime (retries) {
+  return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS)
+}
+
 module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
@@ -39,12 +46,29 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) 
         message = Buffer.from(JSON.stringify(obj))
       }
 
-      producer.send(topic, message, key, partition)
-        .then(() => setImmediate(cb))
-        .catch((err) => {
-          // stream.destroy()
-          setImmediate(() => cb(err))
-        })
+      let retries = 0
+      function send (topic, message, key, partition) {
+        producer.connect({ brokers, debug, ...producerOpts }) // Pass through when already connected
+          .then(() => producer.send(topic, message, key, partition))
+          .then(() => setImmediate(cb))
+          .catch((err) => {
+            if (err.message === 'timed out') {
+              if (retries < MAX_RETRIES) {
+                producer.disconnect()
+                  .catch((err) => {
+                    console.error(err)
+                  })
+                  .then(() => {
+                    setTimeout(() => send(topic, message, key, partition), backoffTime(retries))
+                    retries++
+                  })
+                return
+              }
+            }
+            setImmediate(() => cb(err))
+          })
+      }
+      send(topic, message, key, partition)
 
       return true
     }
