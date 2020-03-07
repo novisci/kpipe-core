@@ -1,10 +1,10 @@
 {
   "name": "kpipe-core",
-  "version": "0.9.17",
+  "version": "0.9.18",
   "description": "Core IO and streams for kpipe",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/jest --forceExit --coverage --verbose"
+    "test": "./node_modules/.bin/jest --forceExit --coverage --verbose --detectOpenHandles"
   },
   "author": "Paul Rowan <prowan@novisci.com>",
   "license": "MIT",

@@ -118,7 +118,7 @@ module.exports = function (options) {
     }
     console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key} (CHUNKED)`)
 
-    let nReqs = 0
+    // let nReqs = 0
     let chunkArray
 
     function bufferStatus () {
@@ -147,7 +147,7 @@ module.exports = function (options) {
       p['Range'] = `bytes=${chunk.start}-${chunk.end}`
       console.debug(`Requesting: ${chunk.start}-${chunk.end}`)
       bufferStatus()
-      nReqs++
+      // nReqs++
       chunk.request = getObject(s3, p, () => {
         chunk.active = true
       })
@@ -156,20 +156,30 @@ module.exports = function (options) {
         })
         .catch((e) => stream.emit('error', e))
         .finally(() => {
-          nReqs--
+          // nReqs--
         })
     }
 
     function makeNextRequest () {
       let i = 0
-      let done = !(nReqs > 0)
-      while (i < chunkArray.length && i < MAX_LOOKAHEAD && nReqs < MAX_REQUESTS) {
-        if (chunkArray[i].request === null) {
-          makeRequest(chunkArray[i])
-          done = false
+      let done = chunkArray.length <= MAX_LOOKAHEAD
+      let nReqs = 0
+      // Inspect the chunk queue and issue requests for unrequested chunks
+      for (i = 0; i < chunkArray.length && i < MAX_LOOKAHEAD; i++) {
+        const chunk = chunkArray[i]
+        if (chunk.request === null) {
+          makeRequest(chunk)
+          nReqs++
+        } else {
+          if (chunk.content === null) {
+            nReqs++
+          }
         }
-        i++
+        if (nReqs >= MAX_REQUESTS) {
+          break
+        }
       }
+      done = done && nReqs === 0
       if (!done) {
         setImmediate(() => makeNextRequest())
       }
