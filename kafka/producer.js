@@ -89,7 +89,6 @@ async function _send (topic, message, key, partition) {
   }
   message = Buffer.isBuffer(message) ? message : Buffer.from(message)
 
-  _deferredMsgs++
   return _produce(topic, message, key, partition)
 }
 
@@ -102,27 +101,35 @@ async function _produce (topic, message, key, partition) {
   }
 
   return producerReady.then((p) => {
-    try {
-      p.produce(topic, partition, message, key, null)
-      _counter(topic)
-      _deferredMsgs--
-      return p
-    } catch (err) {
-      if (ErrorCode.ERR__QUEUE_FULL === err.code) {
-        // Poll for good measure
-        p.poll()
+    return new Promise((resolve, reject) => {
+      function doproduce (p, topic, message, key, partition) {
+        try {
+          p.produce(topic, partition, message, key, null)
+          _counter(topic)
+          _deferredMsgs--
+          return resolve(p)
+        } catch (err) {
+          if (ErrorCode.ERR__QUEUE_FULL === err.code) {
+            console.error('Producer queue full')
+            // Poll for good measure
+            p.poll()
 
-        // Just delay this thing a bit and pass the params again
-        setTimeout(() => _produce(topic, message, key, partition), 500)
-      } else {
-        _deferredMsgs--
-        return Promise.reject(err)
+            // Just delay this thing a bit and pass the params again
+            setTimeout(() => doproduce(p, topic, message, key, partition), 500)
+          } else {
+            _deferredMsgs--
+            return reject(err)
+          }
+        }
       }
-    }
-  })
-    .catch((err) => {
-      console.error(err)
+
+      _deferredMsgs++
+      doproduce(p, topic, message, key, partition)
     })
+  })
+  // .catch((err) => {
+  //   console.error(err)
+  // })
 }
 
 /**
