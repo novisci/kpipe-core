@@ -102,7 +102,7 @@ async function _produce (topic, message, key, partition) {
 
   return producerReady.then((p) => {
     return new Promise((resolve, reject) => {
-      function doproduce (p, topic, message, key, partition) {
+      function doproduce (p, topic, message, key, partition, stalls = 0) {
         try {
           p.produce(topic, partition, message, key, null)
           _counter(topic)
@@ -110,12 +110,13 @@ async function _produce (topic, message, key, partition) {
           return resolve(p)
         } catch (err) {
           if (ErrorCode.ERR__QUEUE_FULL === err.code) {
-            console.error('Producer queue full')
+            stalls++
+            // console.error('Producer queue full ' + stalls)
             // Poll for good measure
             p.poll()
 
             // Just delay this thing a bit and pass the params again
-            setTimeout(() => doproduce(p, topic, message, key, partition), 500)
+            setTimeout(() => doproduce(p, topic, message, key, partition, stalls), 500)
           } else {
             _deferredMsgs--
             return reject(err)
