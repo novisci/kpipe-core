@@ -15,6 +15,8 @@ module.exports = function (options) {
   const bucket = options.bucket
   const prefix = options.prefix || ''
   const keyid = options.key
+  const queueSize = options.queueSize || 4
+  const partSize = options.partSize || 5 * 1024 * 1024
 
   // let count = 0
 
@@ -56,8 +58,8 @@ module.exports = function (options) {
     console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     s3.upload(params, {
-      queueSize: 10,
-      partSize: 5 * 1024 * 1024
+      queueSize,
+      partSize
     })
       // .on('httpUploadProgress', (progress) => {
       //   process.stderr.write(progress.part.toLocaleString())
