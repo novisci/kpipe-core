@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run build-ts && npm run lint",
-    "test": "./node_modules/.bin/jest --forceExit --coverage --verbose --passWithNoTests",
+    "test": "./node_modules/.bin/jest --forceExit --coverage --verbose --detectOpenHandles --passWithNoTests",
     "watch-test": "npm run test -- --watchAll",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
