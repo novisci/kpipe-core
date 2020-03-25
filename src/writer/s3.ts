@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
-import { PassThrough, Writable, StreamCallback } from '../tstream'
+import { PassThrough, Writable } from 'node-typestream'
 import * as path from 'path'
-import { StreamGenerator } from '../backend'
+import { WritableStreamGenerator } from '../backend'
 
 type S3Params = {
   Bucket: string
@@ -16,9 +16,11 @@ type Opts = {
   region?: string
   prefix?: string
   key?: string
+  queueSize?: number
+  partSize?: number
 }
 
-export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
+export function bkS3 (options: Opts = {}): WritableStreamGenerator<Buffer> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 writer requires options.bucket and options.region')
   }
@@ -37,11 +39,11 @@ export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
   return (fn): Writable<Buffer> => {
     const s3stream = new PassThrough<Buffer>()
     const stream = new Writable<Buffer>({
-      write: (chunk: Buffer, enc: string, cb: StreamCallback): void => {
+      write: (chunk: Buffer, enc: string, cb: (error: Error | null | undefined) => void): void => {
         s3stream.write(chunk, enc, cb)
       },
-      final: (cb: StreamCallback): void => {
-        s3stream.end()
+      final: (cb: (error: Error | null | undefined) => void): void => {
+        // s3stream.end()
         const intvl = setInterval(() => {
           if (completed) {
             console.debug('s3stream completed: ' + fn)
@@ -78,15 +80,15 @@ export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
       // .on('error', console.error)
       .promise()
       .then(() => {
-        console.debug('upload stream complete')
+        console.debug('S3 upload stream complete')
         completed = true
-        s3stream.destroy()
+        // s3stream.destroy()
       })
       .catch((err: Error|undefined) => {
         console.error(err)
         completed = true
         completedErr = err
-        s3stream.destroy(err)
+        // s3stream.destroy(err)
       })
 
     return stream

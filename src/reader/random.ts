@@ -1,5 +1,5 @@
-import { StreamGenerator } from '../backend'
-import { Readable } from '../tstream'
+import { ReadableStreamGenerator } from '../backend'
+import { Readable } from 'node-typestream'
 import { StreamTracker } from '../stream-tracker'
 
 function randIdx (max: number): number {
@@ -31,7 +31,7 @@ type Opts = {
   width?: number
 }
 
-export function bkRandom (options: Opts = {}): StreamGenerator<string> {
+export function bkRandom (options: Opts = {}): ReadableStreamGenerator<string> {
   const width = options.width || 10
   const cols = (new Array(width)).fill(null).map(() => {
     return ['string', 'integer', 'number'][randIdx(3)]

@@ -13,7 +13,7 @@
  *
  *  kafka://
  */
-import { Readable } from '../tstream'
+import { Readable } from 'node-typestream'
 import { readerUrl } from './reader'
 
 module.exports = function (url: string, { ...readerOpts } = {}): Readable<Buffer | string> {

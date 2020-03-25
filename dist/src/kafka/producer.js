@@ -87,6 +87,28 @@ class ProducerImpl {
         this._deferredMsgs++;
         return this._produce(topic, message, key, partition);
     }
+    doproduce(p, topic, message, key, partition, cb, stalls = 0) {
+        try {
+            p.produce(topic, partition, message, key, null);
+            this._counter(topic);
+            this._deferredMsgs--;
+            return cb();
+        }
+        catch (err) {
+            if (ErrorCode.ERR__QUEUE_FULL === err.code) {
+                stalls++;
+                // console.error('Producer queue full ' + stalls)
+                // Poll for good measure
+                p.poll();
+                // Just delay this thing a bit and pass the params again
+                setTimeout(() => this.doproduce(p, topic, message, key, partition, cb, stalls), 500);
+            }
+            else {
+                this._deferredMsgs--;
+                return cb(err);
+            }
+        }
+    }
     /**
      *
      */
@@ -95,26 +117,15 @@ class ProducerImpl {
             return Promise.reject(Error('producer is not connected'));
         }
         return this.producerReady.then((p) => {
-            try {
-                p.produce(topic, partition, message, key, null);
-                this._counter(topic);
-                this._deferredMsgs--;
-            }
-            catch (err) {
-                if (ErrorCode.ERR__QUEUE_FULL === err.code) {
-                    // Poll for good measure
-                    p.poll();
-                    // Just delay this thing a bit and pass the params again
-                    setTimeout(() => this._produce(topic, message, key), 500);
-                }
-                else {
-                    this._deferredMsgs--;
-                    return Promise.reject(err);
-                }
-            }
-        })
-            .catch((err) => {
-            console.error(err);
+            return new Promise((resolve, reject) => {
+                this._deferredMsgs++;
+                this.doproduce(p, topic, message, key, partition, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(p);
+                });
+            });
         });
     }
     /**

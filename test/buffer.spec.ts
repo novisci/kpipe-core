@@ -1,10 +1,23 @@
 import { Reader } from '../src/reader'
 import { Writer } from '../src/writer'
+import { Readable, Writable } from 'node-typestream'
 import { FileTemper } from './temper'
 
 const fs = require('fs')
-const rBuf = Reader({ type: 'buffer' })
-const wBuf = Writer({ type: 'buffer' })
+
+function rBuf (data?: Buffer): Readable<Buffer> {
+  return Reader({
+    type: 'buffer'
+  })(data)
+}
+
+function wBuf (cb: (buffer: Buffer) => void): Writable<Buffer> {
+  return Writer({
+    type: 'buffer',
+    cbBuffer: cb
+  })()
+}
+
 const ppipe = require('util').promisify(require('stream').pipeline)
 
 const fileTemper = FileTemper()
@@ -32,9 +45,11 @@ test('buffer reader writes to file', async () => {
 })
 
 test('buffer writer reads from file', async () => {
-  const dst = wBuf()
+  const dst = wBuf((b: Buffer) => {
+    buff = b
+  })
   let buff = Buffer.from('')
-  dst.on('buffer', (b: Buffer) => { buff = b })
+  // dst.on('buffer', (b: Buffer) => { buff = b })
   await ppipe(
     fs.createReadStream(testfile),
     dst
@@ -46,9 +61,11 @@ test('buffer writer reads from file', async () => {
 })
 
 test('buffer streams verbatim data', async () => {
-  const dst = wBuf()
+  const dst = wBuf((b: Buffer) => {
+    buff = b
+  })
   let buff = Buffer.from('')
-  dst.on('buffer', (b: Buffer) => { buff = b })
+  // dst.on('buffer', (b: Buffer) => { buff = b })
   await ppipe(
     rBuf(testData),
     dst

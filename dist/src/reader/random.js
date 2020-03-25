@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 const stream_tracker_1 = require("../stream-tracker");
 function randIdx(max) {
     max = Math.floor(max);
@@ -35,7 +35,7 @@ function bkRandom(options = {}) {
         length = typeof length === 'undefined' ? 1000 : length;
         let nRows = 0;
         console.info(`READ RANDOM ${width}x${length}`);
-        const stream = new tstream_1.Readable({
+        const stream = new node_typestream_1.Readable({
             read: (count) => {
                 while (count--) {
                     nRows++;

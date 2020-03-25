@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_rdkafka_1 = require("node-rdkafka");
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 function topicConf(topic, seek) {
     if (!seek || typeof seek.partition === 'undefined') {
         return false;
@@ -98,7 +98,7 @@ function bkKafka({ brokers = 'localhost:9092', groupid = 'cgroup-' + require('ui
                 endStream();
             });
         }
-        const stream = new tstream_1.Readable({
+        const stream = new node_typestream_1.Readable({
             objectMode: true,
             read: () => {
                 if (isEnded) {

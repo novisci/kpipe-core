@@ -1,7 +1,11 @@
-import { Writable, StreamCallback } from '../tstream'
-import { StreamGenerator } from '../backend'
+import { Writable } from 'node-typestream'
+import { WritableStreamGenerator } from '../backend'
 
-export function bkBuffer (options?: {}): StreamGenerator<Buffer> {
+interface BufferWriterOpts {
+  cbBuffer?: (buffer: Buffer) => void
+}
+
+export function bkBuffer (options: BufferWriterOpts): WritableStreamGenerator<Buffer> {
   return (src?: string): Writable<Buffer> => {
     src = src || ''
     if (!Buffer.isBuffer(src) && typeof src !== 'string') {
@@ -12,14 +16,16 @@ export function bkBuffer (options?: {}): StreamGenerator<Buffer> {
 
     const stream = new Writable<Buffer>({
       objectMode: false,
-      write: (chunk: Buffer, enc: string, cb: StreamCallback): void => {
+      write: (chunk: Buffer, enc: string, cb: (error?: Error | null) => void): void => {
         _buffer = Buffer.concat([_buffer, Buffer.from(chunk)])
         cb()
       }
     })
 
     stream.on('finish', () => {
-      stream.emit('buffer', _buffer)
+      if (options.cbBuffer) {
+        options.cbBuffer(_buffer)
+      }
     })
 
     return stream

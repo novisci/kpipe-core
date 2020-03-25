@@ -1,10 +1,10 @@
-import { Writable, StreamCallback } from '../tstream'
-import { StreamGenerator } from '../backend'
+import { Writable } from 'node-typestream'
+import { WritableStreamGenerator } from '../backend'
 
-export function bkNull (options?: {}): StreamGenerator<any> {
+export function bkNull (options?: {}): WritableStreamGenerator<any> {
   return (): Writable<any> => {
     const stream = new Writable<any>({
-      write: (chunk: any, enc: string, cb: StreamCallback): void => {
+      write: (chunk: any, enc: string, cb: (error?: Error | null) => void): void => {
         cb()
       }
     })

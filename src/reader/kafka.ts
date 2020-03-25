@@ -1,6 +1,6 @@
 import { KafkaConsumer } from 'node-rdkafka'
-import { Readable } from '../tstream'
-import { StreamGenerator } from '../backend'
+import { Readable } from 'node-typestream'
+import { ReadableStreamGenerator } from '../backend'
 
 declare module 'node-rdkafka' {
   interface KafkaConsumer {
@@ -55,7 +55,7 @@ export function bkKafka ({
   timeout,
   fullMessage = false,
   debug = false
-}: KafkaReaderOpts): StreamGenerator<string> {
+}: KafkaReaderOpts): ReadableStreamGenerator<string> {
   let endOfPartition: null|number = null
 
   return (topic: string, position: Position = {}): Readable<string> => {
@@ -193,7 +193,7 @@ export function bkKafka ({
       stream.destroy()
     })
 
-    stream._destroy = function (err: Error|null, cb): void {
+    stream._destroy = function (err: Error|null, cb: (error?: Error | null | undefined) => void): void {
       console.debug('_destroy')
       disconnect((e) => {
         if (e) {
@@ -243,7 +243,7 @@ export function bkKafka ({
       console.debug(log.message)
     })
 
-    consumer.on('event.error', (err?: Error) => {
+    consumer.on('event.error', (err: Error) => {
       stream.emit('error', err)
     })
 

@@ -26,6 +26,13 @@ class Readable extends NodeStream.Readable {
     // pipe<NextTransformOut> (destination: Transform<Out, NextTransformOut>, options?: { end?: boolean }): Transform<Out, NextTransformOut>
     // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
     // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+    // pipe<Out> (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
+    // pipe (destination: Writable<Out>, options?: { end?: boolean}): Writable<Out>
+    // pipe<NextDuplexOut> (destination: Duplex<Out, NextDuplexOut>, options?: { end?: boolean }): Duplex<Out, NextDuplexOut>
+    // pipe (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out> {
+    //   return super.pipe(destination, options)
+    // }
+    // pipe<Writable<Out>> (destination: Writable<Out>, options?: { end?: boolean }): Writable<Out>
     pipe(destination, options) {
         return super.pipe(destination, options);
     }
@@ -34,6 +41,9 @@ exports.Readable = Readable;
 class Writable extends NodeStream.Writable {
     constructor(opts = {}) {
         super(opts);
+    }
+    write(chunk, encoding, callback) {
+        super.write(chunk, encoding, callback);
     }
 }
 exports.Writable = Writable;

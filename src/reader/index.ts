@@ -1,7 +1,6 @@
-import { Readable } from '../tstream'
-import { StreamGenerator } from '../backend'
+import { ReadableStreamGenerator } from '../backend'
 import { bkFs } from './fs'
-import { bkS3 } from './s3'
+import { bkS3 } from './s3_chunked'
 import { bkStdio } from './stdio'
 import { bkKafka } from './kafka'
 import { bkBuffer } from './buffer'
@@ -17,14 +16,14 @@ export function isReaderBackend (s: string): s is ReaderBackendType {
   return false
 }
 
-export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): StreamGenerator<Buffer | string> {
+export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): ReadableStreamGenerator<Buffer | string> {
   if (!type) {
     throw new Error('No reader backend specified in options.type')
   }
 
   // Backend readers return a function which creates new readable streams
   //  given a path
-  let backend: StreamGenerator<Buffer | string>
+  let backend: ReadableStreamGenerator<Buffer | string>
 
   switch (type) {
     case 'fs': backend = bkFs(options); break

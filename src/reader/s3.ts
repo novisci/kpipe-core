@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import * as path from 'path'
-import { StreamGenerator } from '../backend'
-import { Readable } from '../tstream'
+import { ReadableStreamGenerator } from '../backend'
+import { Readable } from 'node-typestream'
 import { StreamTracker } from '../stream-tracker'
 
 type Opts = {
@@ -10,7 +10,7 @@ type Opts = {
   prefix?: string
 }
 
-export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
+export function bkS3 (options: Opts = {}): ReadableStreamGenerator<Buffer> {
   if (!options.bucket || !options.region) {
     throw new Error('S3 reader requires options.bucket and options.region')
   }
@@ -31,7 +31,7 @@ export function bkS3 (options: Opts = {}): StreamGenerator<Buffer> {
     console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     const request = s3.getObject(params)
-    const stream = request.createReadStream()
+    const stream = request.createReadStream() as unknown as Readable<Buffer>
 
     request.on('httpHeaders', (status, headers) => {
       if (headers['content-length']) {

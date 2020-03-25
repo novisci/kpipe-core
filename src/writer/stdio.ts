@@ -1,13 +1,14 @@
-import { PassThrough, Writable } from '../tstream'
-import { StreamGenerator } from '../backend'
+import { PassThrough, Writable } from 'node-typestream'
+import { WritableStreamGenerator } from '../backend'
 
-export function bkStdio (options?: {}): StreamGenerator<Buffer> {
+export function bkStdio (options?: {}): WritableStreamGenerator<Buffer> {
   return (): Writable<Buffer> => {
-    const stream = new PassThrough<Buffer>()
-    stream.on('finish', () => {
-      stream.unpipe(process.stdout)
-    })
-    stream.pipe(process.stdout)
-    return stream
+    return process.stdout as unknown as Writable<Buffer>
+    // const stream = new PassThrough<Buffer>()
+    // stream.on('finish', () => {
+    //   stream.unpipe(process.stdout as unknown as Writable<Buffer>)
+    // })
+    // stream.pipe(process.stdout as unknown as Writable<Buffer>)
+    // return stream
   }
 }

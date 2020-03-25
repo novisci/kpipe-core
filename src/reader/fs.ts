@@ -1,21 +1,21 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { StreamGenerator } from '../backend'
-import { Readable } from '../tstream'
+import { ReadableStreamGenerator } from '../backend'
+import { Readable } from 'node-typestream'
 import { StreamTracker } from '../stream-tracker'
 
 type Opts = {
   prefix?: string
 }
 
-export function bkFs (options: Opts = {}): StreamGenerator<Buffer> {
+export function bkFs (options: Opts = {}): ReadableStreamGenerator<Buffer> {
   const prefix = options.prefix || ''
 
   return (fn: string): Readable<Buffer> => {
     const p = path.join(prefix, fn)
 
     console.info(`READ FS Path: ${p}`)
-    const stream = fs.createReadStream(p)
+    const stream = fs.createReadStream(p) as unknown as Readable<Buffer>
 
     fs.stat(p, { bigint: true }, (err, stats) => {
       if (err) {

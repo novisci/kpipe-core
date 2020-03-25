@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 function bkBuffer(options) {
     return (src) => {
         src = src || '';
@@ -8,7 +8,7 @@ function bkBuffer(options) {
             throw Error('supplied argument must be a buffer or string');
         }
         let _buffer = Buffer.from(src);
-        const stream = new tstream_1.Writable({
+        const stream = new node_typestream_1.Writable({
             objectMode: false,
             write: (chunk, enc, cb) => {
                 _buffer = Buffer.concat([_buffer, Buffer.from(chunk)]);
@@ -16,7 +16,9 @@ function bkBuffer(options) {
             }
         });
         stream.on('finish', () => {
-            stream.emit('buffer', _buffer);
+            if (options.cbBuffer) {
+                options.cbBuffer(_buffer);
+            }
         });
         return stream;
     };

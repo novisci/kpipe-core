@@ -134,6 +134,36 @@ class ProducerImpl implements KafkaProducer {
     return this._produce(topic, message, key, partition)
   }
 
+  private doproduce (
+    p: Producer,
+    topic: string,
+    message: Buffer|string,
+    key: Buffer|string|null|undefined,
+    partition: number|undefined,
+    cb: (err?: Error) => void,
+    stalls = 0
+  ): void {
+    try {
+      p.produce(topic, partition, message, key, null)
+      this._counter(topic)
+      this._deferredMsgs--
+      return cb()
+    } catch (err) {
+      if (ErrorCode.ERR__QUEUE_FULL === err.code) {
+        stalls++
+        // console.error('Producer queue full ' + stalls)
+        // Poll for good measure
+        p.poll()
+
+        // Just delay this thing a bit and pass the params again
+        setTimeout(() => this.doproduce(p, topic, message, key, partition, cb, stalls), 500)
+      } else {
+        this._deferredMsgs--
+        return cb(err)
+      }
+    }
+  }
+
   /**
    *
    */
@@ -148,26 +178,16 @@ class ProducerImpl implements KafkaProducer {
     }
 
     return this.producerReady.then((p) => {
-      try {
-        p.produce(topic, partition, message, key, null)
-        this._counter(topic)
-        this._deferredMsgs--
-      } catch (err) {
-        if (ErrorCode.ERR__QUEUE_FULL === err.code) {
-          // Poll for good measure
-          p.poll()
-
-          // Just delay this thing a bit and pass the params again
-          setTimeout(() => this._produce(topic, message, key), 500)
-        } else {
-          this._deferredMsgs--
-          return Promise.reject(err)
-        }
-      }
-    })
-      .catch((err: Error) => {
-        console.error(err)
+      return new Promise((resolve, reject) => {
+        this._deferredMsgs++
+        this.doproduce(p, topic, message, key, partition, (err?: Error): void => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(p)
+        })
       })
+    })
   }
 
   /**

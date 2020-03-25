@@ -38,7 +38,7 @@ const prefixes = (url) => pathcomps(url).slice(0, -1);
 const extension = (url) => safeMatch(url, /\.([^/.]+)$/);
 const isAbsolute = (url) => first(pathcomps(url)) === '';
 const isDir = (url) => last(pathcomps(url)) === '';
-const file = (url) => last(pathcomps(url)) || null;
+const file = (url) => last(pathcomps(url)) || '';
 function parse(url) {
     return {
         protocol: protocol(url),

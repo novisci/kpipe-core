@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("./fs");
-const s3_1 = require("./s3");
+const s3_chunked_1 = require("./s3_chunked");
 const stdio_1 = require("./stdio");
 const kafka_1 = require("./kafka");
 const buffer_1 = require("./buffer");
@@ -26,7 +26,7 @@ function Reader({ type, ...options } = { type: 'buffer' }) {
             backend = fs_1.bkFs(options);
             break;
         case 's3':
-            backend = s3_1.bkS3(options);
+            backend = s3_chunked_1.bkS3(options);
             break;
         case 'stdio':
             backend = stdio_1.bkStdio(options);

@@ -1,7 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 const producer_1 = require("../kafka/producer");
+const MAX_RETRIES = 5;
+const MAX_WAITMS = 10000;
+function backoffTime(retries) {
+    return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS);
+}
 function bkKafka({ brokers = 'localhost:9092', debug = false, 
 // objectMode = false,
 producerOpts = {}, fnKey } = {}) {
@@ -39,12 +44,29 @@ producerOpts = {}, fnKey } = {}) {
             else {
                 message = Buffer.from(JSON.stringify(obj));
             }
-            producer_1.KafkaProducer.send(topic, message, key, partition)
-                .then(() => setImmediate(cb))
-                .catch((err) => {
-                // stream.destroy()
-                setImmediate(() => cb(err));
-            });
+            let retries = 0;
+            function send(topic, message, key, partition) {
+                producer_1.KafkaProducer.connect({ brokers, debug, ...producerOpts }) // Pass through when already connected
+                    .then(() => producer_1.KafkaProducer.send(topic, message, key, partition))
+                    .then(() => setImmediate(cb))
+                    .catch((err) => {
+                    if (err.message === 'timed out') {
+                        if (retries < MAX_RETRIES) {
+                            producer_1.KafkaProducer.disconnect()
+                                .catch((err) => {
+                                console.error(err);
+                            })
+                                .then(() => {
+                                setTimeout(() => send(topic, message, key, partition), backoffTime(retries));
+                                retries++;
+                            });
+                            return;
+                        }
+                    }
+                    setImmediate(() => cb(err));
+                });
+            }
+            send(topic, message, key, partition);
         };
         // const _writeBuf = (message, enc, cb) => {
         //   producer.send(topic, message, null, partition)
@@ -54,7 +76,7 @@ producerOpts = {}, fnKey } = {}) {
         //       setImmediate(() => cb(err))
         //     })
         // }
-        const stream = new tstream_1.Writable({
+        const stream = new node_typestream_1.Writable({
             objectMode: true,
             write: /* objectMode !== true ? _writeBuf : */ _writeObj,
             final: (cb) => {

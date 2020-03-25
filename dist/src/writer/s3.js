@@ -8,7 +8,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const AWS = __importStar(require("aws-sdk"));
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 const path = __importStar(require("path"));
 function bkS3(options = {}) {
     if (!options.bucket || !options.region) {
@@ -21,14 +21,16 @@ function bkS3(options = {}) {
     const bucket = options.bucket;
     const prefix = options.prefix || '';
     const keyid = options.key;
+    const queueSize = options.queueSize || 4;
+    const partSize = options.partSize || 5 * 1024 * 1024;
     return (fn) => {
-        const s3stream = new tstream_1.PassThrough();
-        const stream = new tstream_1.Writable({
+        const s3stream = new node_typestream_1.PassThrough();
+        const stream = new node_typestream_1.Writable({
             write: (chunk, enc, cb) => {
                 s3stream.write(chunk, enc, cb);
             },
             final: (cb) => {
-                s3stream.end();
+                // s3stream.end()
                 const intvl = setInterval(() => {
                     if (completed) {
                         console.debug('s3stream completed: ' + fn);
@@ -51,8 +53,8 @@ function bkS3(options = {}) {
         let completedErr;
         console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`);
         s3.upload(params, {
-            queueSize: 10,
-            partSize: 5 * 1024 * 1024
+            queueSize,
+            partSize
         })
             // .on('httpUploadProgress', (progress) => {
             //   process.stderr.write(progress.part.toLocaleString())
@@ -60,15 +62,15 @@ function bkS3(options = {}) {
             // .on('error', console.error)
             .promise()
             .then(() => {
-            console.debug('upload stream complete');
+            console.debug('S3 upload stream complete');
             completed = true;
-            s3stream.destroy();
+            // s3stream.destroy()
         })
             .catch((err) => {
             console.error(err);
             completed = true;
             completedErr = err;
-            s3stream.destroy(err);
+            // s3stream.destroy(err)
         });
         return stream;
     };

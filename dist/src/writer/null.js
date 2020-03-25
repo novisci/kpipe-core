@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tstream_1 = require("../tstream");
+const node_typestream_1 = require("node-typestream");
 function bkNull(options) {
     return () => {
-        const stream = new tstream_1.Writable({
+        const stream = new node_typestream_1.Writable({
             write: (chunk, enc, cb) => {
                 cb();
             }

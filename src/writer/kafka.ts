@@ -1,5 +1,5 @@
-import { Writable, StreamCallback } from '../tstream'
-import { StreamGenerator, StreamCb } from '../backend'
+import { Writable } from 'node-typestream'
+import { WritableStreamGenerator, StreamCb } from '../backend'
 import { KafkaProducer } from '../kafka/producer'
 
 type StreamObj = Buffer|string|{ key?: string, [key: string]: any }
@@ -7,7 +7,7 @@ type StreamObj = Buffer|string|{ key?: string, [key: string]: any }
 const MAX_RETRIES = 5
 const MAX_WAITMS = 10000
 
-function backoffTime (retries) {
+function backoffTime (retries: number): number {
   return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS)
 }
 
@@ -25,7 +25,7 @@ export function bkKafka ({
   // objectMode = false,
   producerOpts = {},
   fnKey
-}: KafkaWriterOpts = {}): StreamGenerator<{} | string> {
+}: KafkaWriterOpts = {}): WritableStreamGenerator<{} | string> {
   KafkaProducer.connect({ brokers, debug, ...producerOpts })
 
   return (topic, partition): Writable<{} | string> => {
@@ -65,14 +65,14 @@ export function bkKafka ({
       }
 
       let retries = 0
-      function send (topic, message, key, partition) {
-        producer.connect({ brokers, debug, ...producerOpts }) // Pass through when already connected
-          .then(() => producer.send(topic, message, key, partition))
+      function send (topic: string, message: Buffer, key: string|null, partition?: number): void {
+        KafkaProducer.connect({ brokers, debug, ...producerOpts }) // Pass through when already connected
+          .then(() => KafkaProducer.send(topic, message, key, partition))
           .then(() => setImmediate(cb))
           .catch((err) => {
             if (err.message === 'timed out') {
               if (retries < MAX_RETRIES) {
-                producer.disconnect()
+                KafkaProducer.disconnect()
                   .catch((err) => {
                     console.error(err)
                   })
@@ -87,8 +87,6 @@ export function bkKafka ({
           })
       }
       send(topic, message, key, partition)
-
-      return true
     }
 
     // const _writeBuf = (message, enc, cb) => {
@@ -103,7 +101,7 @@ export function bkKafka ({
     const stream = new Writable<{} | string>({
       objectMode: true,
       write: /* objectMode !== true ? _writeBuf : */ _writeObj,
-      final: (cb: StreamCallback): void => {
+      final: (cb: (error?: Error | null) => void): void => {
         KafkaProducer.flush().then((): void => {
           // Object.entries(stats).map((e) => {
           //   console.debug(`${e[0]}: ${e[1].toLocaleString()}`)

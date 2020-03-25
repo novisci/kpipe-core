@@ -13,7 +13,7 @@
  *
  *  kafka://
  */
-import { Writable } from '../tstream'
+import { Writable } from 'node-typestream'
 import { writerUrl } from './writer'
 
 module.exports = function (url: string, { ...writerOpts } = {}): Writable<Buffer | string> {

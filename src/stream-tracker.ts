@@ -1,4 +1,4 @@
-import { Readable } from './tstream/index'
+import { Readable } from 'node-typestream'
 
 /***
  * Small utility to track a (non-object) stream's data event and report

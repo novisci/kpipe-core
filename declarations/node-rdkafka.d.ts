@@ -1,4 +1,4 @@
-import { Readable, Writable } from '../src/tstream/__index';
+import { Readable, Writable } from 'node-typestream';
 import { EventEmitter } from 'events'
 
 export class Client extends EventEmitter {
@@ -236,7 +236,7 @@ declare interface ProducerStream extends Writable<Buffer> {
   close(cb?: Function): void;
 }
 
-declare interface ConsumerStream extends Readable<Buffer> {
+declare interface ConsumerStream extends Readable<Buffer|ConsumerStreamMessage> {
   consumer: KafkaConsumer;
   connect(options: any): void;
   close(cb?: Function): void;
