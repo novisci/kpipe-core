@@ -16,7 +16,7 @@ type ProducerOpts = {
 
 interface KafkaProducer {
   connect (options?: ConnectOpts): Promise<Producer>
-  send (topic: string, message: Buffer|string, key?: Buffer|string|null, partition?: number): Promise<void>
+  send (topic: string, message: Buffer|string, key?: Buffer|string|null, partition?: number): Promise<Producer>
   flush (): Promise<Producer>
   disconnect (): Promise<void>
   stats (): Stats
@@ -120,7 +120,7 @@ class ProducerImpl implements KafkaProducer {
     message: Buffer|string,
     key?: Buffer|string|null,
     partition?: number
-  ): Promise<void> {
+  ): Promise<Producer> {
     if (!this.isConnected) {
       throw Error('produce() called before connect()')
     }
@@ -130,7 +130,6 @@ class ProducerImpl implements KafkaProducer {
     }
     message = Buffer.isBuffer(message) ? message : Buffer.from(message)
 
-    this._deferredMsgs++
     return this._produce(topic, message, key, partition)
   }
 
@@ -146,7 +145,6 @@ class ProducerImpl implements KafkaProducer {
     try {
       p.produce(topic, partition, message, key, null)
       this._counter(topic)
-      this._deferredMsgs--
       return cb()
     } catch (err) {
       if (ErrorCode.ERR__QUEUE_FULL === err.code) {
@@ -158,7 +156,6 @@ class ProducerImpl implements KafkaProducer {
         // Just delay this thing a bit and pass the params again
         setTimeout(() => this.doproduce(p, topic, message, key, partition, cb, stalls), 500)
       } else {
-        this._deferredMsgs--
         return cb(err)
       }
     }
@@ -172,7 +169,7 @@ class ProducerImpl implements KafkaProducer {
     message: Buffer|string,
     key?: Buffer|string|null,
     partition?: number
-  ): Promise<any> {
+  ): Promise<Producer> {
     if (!this.producerReady) {
       return Promise.reject(Error('producer is not connected'))
     }
@@ -181,6 +178,7 @@ class ProducerImpl implements KafkaProducer {
       return new Promise((resolve, reject) => {
         this._deferredMsgs++
         this.doproduce(p, topic, message, key, partition, (err?: Error): void => {
+          this._deferredMsgs--
           if (err) {
             return reject(err)
           }
@@ -202,6 +200,7 @@ class ProducerImpl implements KafkaProducer {
       .then((p) => new Promise<Producer>((resolve) => {
         const checkDeferred = (): void => {
           if (this._deferredMsgs > 0) {
+            console.error(`Waiting on ${this._deferredMsgs} deferred messages`)
             setTimeout(() => checkDeferred(), 1000)
           } else {
             resolve(p)
