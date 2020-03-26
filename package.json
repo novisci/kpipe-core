@@ -41,7 +41,7 @@
   "dependencies": {
     "aws-sdk": "^2.624.0",
     "node-rdkafka": "^2.7.4",
-    "node-typestream": "^0.1.1",
+    "node-typestream": "^0.1.2",
     "uid-safe": "^2.1.5"
   }
 }
