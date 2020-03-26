@@ -16,7 +16,7 @@
 import { Writable } from 'node-typestream'
 import { writerUrl } from './writer'
 
-module.exports = function (url: string, { ...writerOpts } = {}): Writable<Buffer | string> {
+export function writeStreamUrl (url: string, { ...writerOpts } = {}): Writable<Buffer | string> {
   const [writer, streamArgs] = writerUrl(url, writerOpts)
 
   const stream = writer(...streamArgs()) as Writable<Buffer | string>

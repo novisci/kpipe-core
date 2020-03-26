@@ -16,7 +16,7 @@
 import { Readable } from 'node-typestream'
 import { readerUrl } from './reader'
 
-module.exports = function (url: string, { ...readerOpts } = {}): Readable<Buffer | string> {
+export function readStreamUrl (url: string, { ...readerOpts } = {}): Readable<Buffer | string> {
   const [reader, streamArgs] = readerUrl(url, readerOpts)
 
   const stream = reader(...streamArgs())
