@@ -32,7 +32,7 @@ test('write json stream to topic', async () => {
     writableObjectMode: false,
     readableObjectMode: true,
 
-    transform: (chunk: Buffer, enc: any, cb: (err?: Error) => void): void => {
+    transform: (chunk: Buffer | string, enc: any, cb: (err?: Error) => void): void => {
       chunk.toString().split('\n').forEach((l) => {
         xform.push(l + '\n')
       })
