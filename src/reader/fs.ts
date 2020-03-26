@@ -15,7 +15,9 @@ export function bkFs (options: Opts = {}): ReadableStreamGenerator<Buffer> {
     const p = path.join(prefix, fn)
 
     console.info(`READ FS Path: ${p}`)
-    const stream = fs.createReadStream(p) as unknown as Readable<Buffer>
+    const stream = new Readable<Buffer>({
+      stream: fs.createReadStream(p)
+    })
 
     fs.stat(p, { bigint: true }, (err, stats) => {
       if (err) {
@@ -27,6 +29,6 @@ export function bkFs (options: Opts = {}): ReadableStreamGenerator<Buffer> {
       })
     })
 
-    return StreamTracker(stream as Readable<Buffer>)
+    return StreamTracker(stream)
   }
 }

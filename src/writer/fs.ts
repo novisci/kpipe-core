@@ -14,6 +14,9 @@ export function bkFs (options: Opts = {}): WritableStreamGenerator<Buffer> {
     const p = path.join(prefix, fn)
 
     console.info(`WRITE FS Path: ${p}`)
-    return fs.createWriteStream(p) as unknown as Writable<Buffer>
+    // return fs.createWriteStream(p) as unknown as Writable<Buffer>
+    return new Writable<Buffer>({
+      stream: fs.createWriteStream(p)
+    })
   }
 }

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const temper_1 = require("./temper");
 const __1 = require("..");
-const ppipe = require('util').promisify(require('stream').pipeline);
+const node_typestream_1 = require("node-typestream");
 const kafkaWriter = __1.Writer({
     type: 'kafka',
     brokers: process.env.KPIPE_BROKERS,
@@ -21,7 +21,7 @@ test('write json stream to topic', async () => {
     await kafkaAdmin.createTopic(topic, 1, 0, {});
     console.info(`Created topic ${topic}`);
     await kafkaAdmin.disconnect();
-    const xform = require('stream').Transform({
+    const xform = new node_typestream_1.Transform({
         writableObjectMode: false,
         readableObjectMode: true,
         transform: (chunk, enc, cb) => {
@@ -31,6 +31,6 @@ test('write json stream to topic', async () => {
             cb();
         }
     });
-    await ppipe(require('..').Reader({ type: 'fs' })(filename), xform, kafkaWriter(topic));
+    await node_typestream_1.pipeline(__1.Reader({ type: 'fs' })(filename), xform, kafkaWriter(topic));
 });
 //# sourceMappingURL=kafkaproduce.spec.js.map

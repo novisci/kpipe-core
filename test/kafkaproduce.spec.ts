@@ -1,6 +1,6 @@
 import { TopicTemper } from './temper'
-import { Writer, KafkaAdmin, KafkaProducer } from '..'
-const ppipe = require('util').promisify(require('stream').pipeline)
+import { Reader, Writer, KafkaAdmin, KafkaProducer } from '..'
+import { Transform, pipeline } from 'node-typestream'
 
 const kafkaWriter = Writer({
   type: 'kafka',
@@ -28,11 +28,11 @@ test('write json stream to topic', async () => {
 
   await kafkaAdmin.disconnect()
 
-  const xform = require('stream').Transform({
+  const xform = new Transform<Buffer | string, string>({
     writableObjectMode: false,
     readableObjectMode: true,
 
-    transform: (chunk: Buffer, enc: any, cb: (err?: Error) => void) => {
+    transform: (chunk: Buffer, enc: any, cb: (err?: Error) => void): void => {
       chunk.toString().split('\n').forEach((l) => {
         xform.push(l + '\n')
       })
@@ -40,8 +40,8 @@ test('write json stream to topic', async () => {
     }
   })
 
-  await ppipe(
-    require('..').Reader({ type: 'fs' })(filename),
+  await pipeline(
+    Reader({ type: 'fs' })(filename),
     xform,
     kafkaWriter(topic)
   )

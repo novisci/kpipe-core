@@ -9,13 +9,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const node_typestream_1 = require("node-typestream");
 const stream_tracker_1 = require("../stream-tracker");
 function bkFs(options = {}) {
     const prefix = options.prefix || '';
     return (fn) => {
         const p = path.join(prefix, fn);
         console.info(`READ FS Path: ${p}`);
-        const stream = fs.createReadStream(p);
+        const stream = new node_typestream_1.Readable({
+            stream: fs.createReadStream(p)
+        });
         fs.stat(p, { bigint: true }, (err, stats) => {
             if (err) {
                 return stream.emit('error', err);

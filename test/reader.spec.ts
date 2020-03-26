@@ -1,5 +1,5 @@
 import { Reader, ReaderBackendType } from '../src/reader'
-// import { Readable } from '../src/tstream'
+import { Readable } from 'node-typestream'
 import * as NodeStream from 'stream'
 import * as util from 'util'
 
@@ -23,7 +23,7 @@ describe.each([
 
   test(`${type} generator returns stream`, async () => {
     const stream = streamer(...args)
-    expect(stream instanceof NodeStream.Readable).toBeTruthy()
+    expect(stream instanceof Readable).toBeTruthy()
     await ppipe(
       stream,
       require('..').Writer({ type: 'null' })()

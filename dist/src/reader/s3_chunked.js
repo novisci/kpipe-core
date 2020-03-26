@@ -11,6 +11,7 @@ const path = __importStar(require("path"));
 const https = __importStar(require("https"));
 const AWS = __importStar(require("aws-sdk"));
 const node_typestream_1 = require("node-typestream");
+const stream_tracker_1 = require("../stream-tracker");
 const CHUNK_SIZE = 4 * 1024 * 1024;
 /**
  * Set the maximum number of concurrent S3.getObject chunk downloads (MAX_REQUESTS) and
@@ -198,7 +199,7 @@ function bkS3(options = {}) {
                 readNextChunk();
             }
         });
-        return require('../stream-tracker')(stream);
+        return stream_tracker_1.StreamTracker(stream);
     };
 }
 exports.bkS3 = bkS3;

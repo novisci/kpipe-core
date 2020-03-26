@@ -16,14 +16,23 @@ export function isReaderBackend (s: string): s is ReaderBackendType {
   return false
 }
 
-export function Reader ({ type, ...options }: ReaderBackendArgs = { type: 'buffer' }): ReadableStreamGenerator<Buffer | string> {
+type StreamTypeMap = {
+  fs: Buffer
+  s3: Buffer
+  stdio: Buffer
+  kafka: string
+  buffer: Buffer
+  random: string
+}
+
+export function Reader ({ type, ...options }: ReaderBackendArgs): ReadableStreamGenerator<Buffer | string> {
   if (!type) {
     throw new Error('No reader backend specified in options.type')
   }
 
   // Backend readers return a function which creates new readable streams
   //  given a path
-  let backend: ReadableStreamGenerator<Buffer | string>
+  let backend: ReadableStreamGenerator<Buffer> | ReadableStreamGenerator<string>
 
   switch (type) {
     case 'fs': backend = bkFs(options); break

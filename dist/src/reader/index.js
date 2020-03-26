@@ -14,7 +14,7 @@ function isReaderBackend(s) {
     return false;
 }
 exports.isReaderBackend = isReaderBackend;
-function Reader({ type, ...options } = { type: 'buffer' }) {
+function Reader({ type, ...options }) {
     if (!type) {
         throw new Error('No reader backend specified in options.type');
     }

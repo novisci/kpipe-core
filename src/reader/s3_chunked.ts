@@ -3,6 +3,7 @@ import * as https from 'https'
 import * as AWS from 'aws-sdk'
 import { Readable } from 'node-typestream'
 import { ReadableStreamGenerator } from '../backend'
+import { StreamTracker } from '../stream-tracker'
 
 const CHUNK_SIZE = 4 * 1024 * 1024
 
@@ -233,6 +234,6 @@ export function bkS3 (options: Opts = {}): ReadableStreamGenerator<Buffer> {
       }
     })
 
-    return require('../stream-tracker')(stream)
+    return StreamTracker(stream as Readable<Buffer>)
   }
 }
