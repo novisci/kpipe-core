@@ -84,14 +84,12 @@ class ProducerImpl {
             key = Buffer.isBuffer(key) ? key : Buffer.from(key);
         }
         message = Buffer.isBuffer(message) ? message : Buffer.from(message);
-        // this._deferredMsgs++
         return this._produce(topic, message, key, partition);
     }
     doproduce(p, topic, message, key, partition, cb, stalls = 0) {
         try {
             p.produce(topic, partition, message, key, null);
             this._counter(topic);
-            // this._deferredMsgs--
             return cb();
         }
         catch (err) {
@@ -104,7 +102,6 @@ class ProducerImpl {
                 setTimeout(() => this.doproduce(p, topic, message, key, partition, cb, stalls), 500);
             }
             else {
-                // this._deferredMsgs--
                 return cb(err);
             }
         }
@@ -141,7 +138,6 @@ class ProducerImpl {
             const checkDeferred = () => {
                 if (this._deferredMsgs > 0) {
                     console.error(`Waiting on ${this._deferredMsgs} deferred messages`);
-                    p.poll();
                     setTimeout(() => checkDeferred(), 1000);
                 }
                 else {
@@ -163,7 +159,6 @@ class ProducerImpl {
      *
      */
     async disconnect() {
-        console.error(`Disonnecting producer`);
         if (!this.isConnected) {
             return Promise.resolve();
         }
