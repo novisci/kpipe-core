@@ -1,4 +1,5 @@
 import { Readable } from 'node-typestream'
+import './reader/notify'
 
 /***
  * Small utility to track a (non-object) stream's data event and report

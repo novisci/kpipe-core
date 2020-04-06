@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("./reader/notify");
 /***
  * Small utility to track a (non-object) stream's data event and report
  *  'notify' events to track progress
