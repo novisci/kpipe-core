@@ -119,6 +119,7 @@ module.exports = function (options) {
     console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key} (CHUNKED)`)
 
     // let nReqs = 0
+    let initialized = false
     let chunkArray
 
     function bufferStatus () {
@@ -129,16 +130,34 @@ module.exports = function (options) {
       console.debug(str)
     }
 
+    const stream = new Readable({
+      objectMode: false,
+
+      read: () => {
+        if (!initialized) {
+          setTimeout(() => stream.read(), 100)
+          return
+        }
+        if (chunkArray && chunkArray.length === 0) {
+          stream.push(null)
+          return
+        }
+        readNextChunk()
+      }
+    })
+
     getObjectLength(s3, params)
       .then((length) => {
         stream.emit('notify', {
           type: 'readsize',
           size: BigInt(length)
         })
+        console.error(`Object size: ${length}`)
         chunkArray = createChunkRequests(length)
         console.debug(chunkArray)
         bufferStatus()
         makeNextRequest()
+        initialized = true
       })
       .catch((e) => stream.emit('error', e))
 
@@ -161,6 +180,10 @@ module.exports = function (options) {
     }
 
     function makeNextRequest () {
+      if (chunkArray.length === 0) {
+        return
+      }
+
       let i = 0
       let done = chunkArray.length <= MAX_LOOKAHEAD
       let nReqs = 0
@@ -195,18 +218,6 @@ module.exports = function (options) {
         setImmediate(() => readNextChunk())
       }
     }
-
-    const stream = new Readable({
-      objectMode: false,
-
-      read: () => {
-        if (chunkArray && chunkArray.length === 0) {
-          stream.push(null)
-          return
-        }
-        readNextChunk()
-      }
-    })
 
     return require('../stream-tracker')(stream)
   }
