@@ -130,20 +130,22 @@ module.exports = function (options) {
       console.debug(str)
     }
 
+    function _read () {
+      if (!initialized) {
+        setTimeout(() => _read(), 100)
+        return
+      }
+      if (chunkArray && chunkArray.length === 0) {
+        stream.push(null)
+        return
+      }
+      readNextChunk()
+    }
+
     const stream = new Readable({
       objectMode: false,
 
-      read: () => {
-        if (!initialized) {
-          setTimeout(() => stream.read(), 100)
-          return
-        }
-        if (chunkArray && chunkArray.length === 0) {
-          stream.push(null)
-          return
-        }
-        readNextChunk()
-      }
+      read: _read
     })
 
     getObjectLength(s3, params)
