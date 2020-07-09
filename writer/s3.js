@@ -24,20 +24,18 @@ module.exports = function (options) {
     const s3stream = new PassThrough()
     const stream = new Writable({
       write: (chunk, enc, cb) => {
-        // if (count++ % 1000 === 0) {
-        //   process.stderr.write('x')
-        // }
-        return s3stream.write(chunk, enc, cb)
+        if (!s3stream.write(chunk, enc)) {
+          s3stream.once('drain', cb)
+        } else {
+          cb()
+        }
       },
       final: (cb) => {
         s3stream.end()
-        const intvl = setInterval(() => {
-          if (completed) {
-            // console.debug('s3stream completed: ' + fn)
-            clearInterval(intvl)
-            cb(completedErr)
-          }
-        }, 100)
+        s3stream.once('complete', () => {
+          console.debug(`S3 completed ${fn}`)
+          cb()
+        })
       }
     })
 
@@ -52,9 +50,6 @@ module.exports = function (options) {
       params.SSEKMSKeyId = keyid
     }
 
-    let completed = false
-    let completedErr = null
-
     console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     s3.upload(params, {
@@ -62,19 +57,16 @@ module.exports = function (options) {
       partSize
     })
       // .on('httpUploadProgress', (progress) => {
-      //   process.stderr.write(progress.part.toLocaleString())
+      //   console.info(progress)
       // })
       .on('error', console.error)
       .promise()
       .then((data) => {
-        // console.debug('upload stream complete')
-        completed = true
-        s3stream.destroy()
+        console.debug('S3 upload stream complete')
+        s3stream.emit('complete')
       })
       .catch((err) => {
         console.error(err)
-        completed = true
-        completedErr = err
         s3stream.destroy(err)
       })
 
