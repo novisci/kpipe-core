@@ -1,6 +1,6 @@
 {
   "name": "kpipe-core",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "Core IO and streams for kpipe",
   "main": "index.js",
   "scripts": {
@@ -11,15 +11,7 @@
   "repository": "github:novisci/kpipe-core",
   "devDependencies": {
     "dotenv": "^8.2.0",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-friendly-formatter": "^4.0.1",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-jest": "^22.6.4",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "jest": "^25.2.7"
+    "jest": "^25.5.4"
   },
   "dependencies": {
     "aws-sdk": "^2.624.0",
