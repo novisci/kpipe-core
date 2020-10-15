@@ -32,9 +32,9 @@ function withRetry (fn, params, fnActive = (() => {})) {
         // }
         if (err) {
           if (err.statusCode >= 500) {
-            console.error(`STATUS ${err.statusCode}: ${err.message}`)
+            console.info(`STATUS ${err.statusCode}: ${err.message}`)
             if (retries < MAX_RETRIES) {
-              console.error(`RETRY ${retries}: ${backoffTime(retries)}ms`)
+              console.info(`RETRY ${retries}: ${backoffTime(retries)}ms`)
               setTimeout(() => request(params), backoffTime(retries))
               retries++
               return
@@ -120,6 +120,7 @@ module.exports = function (options) {
 
     // let nReqs = 0
     let initialized = false
+    let failed = false
     let chunkArray
 
     function bufferStatus () {
@@ -131,6 +132,9 @@ module.exports = function (options) {
     }
 
     function _read () {
+      if (failed) {
+        return
+      }
       if (!initialized) {
         setTimeout(() => _read(), 100)
         return
@@ -154,14 +158,19 @@ module.exports = function (options) {
           type: 'readsize',
           size: BigInt(length)
         })
-        console.error(`Object size: ${length}`)
+        console.error(`Object size: ${length} (${(length/(1024*1024)).toFixed(2).toLocaleString()} MB)`)
         chunkArray = createChunkRequests(length)
         console.debug(chunkArray)
         bufferStatus()
         makeNextRequest()
         initialized = true
       })
-      .catch((e) => stream.emit('error', e))
+      .catch((e) => {
+        failed = true
+        setImmediate(() => {
+          stream.emit('error', Error(`S3 ${e.code}: ${JSON.stringify(params)}`))
+        })
+      })
 
     function makeRequest (chunk) {
       const p = { ...params }
