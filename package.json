@@ -1,6 +1,6 @@
 {
   "name": "kpipe-core",
-  "version": "0.11.4",
+  "version": "0.12.0",
   "description": "Core IO and streams for kpipe",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.863.0",
-    "node-rdkafka": "^2.8.0",
+    "node-rdkafka": "^2.10.1",
     "uid-safe": "^2.1.5"
   }
 }
