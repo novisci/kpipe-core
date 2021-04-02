@@ -10,6 +10,13 @@ let _metadata = null
 const stats = {}
 let _deferredMsgs = 0
 
+const MAX_RETRIES = 5
+const MAX_WAITMS = 10000
+
+function backoffTime (retries) {
+  return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS)
+}
+
 /**
  *
  */
@@ -96,6 +103,11 @@ async function _send (topic, message, key, partition) {
 /**
  *
  */
+// These are errors from which we will attempt a retry
+const retryErrors = [
+  ErrorCode.ERR__QUEUE_FULL,
+  ErrorCode.ERR__TRANSPORT
+]
 async function _produce (topic, message, key, partition) {
   if (!producer) {
     throw Error('producer connection has gone away')
@@ -110,14 +122,14 @@ async function _produce (topic, message, key, partition) {
           _deferredMsgs--
           return resolve(p)
         } catch (err) {
-          if (ErrorCode.ERR__QUEUE_FULL === err.code) {
-            stalls++
+          if (retryErrors.includes(err.code) && stalls < MAX_RETRIES) {
             // console.error('Producer queue full ' + stalls)
             // Poll for good measure
             p.poll()
 
             // Just delay this thing a bit and pass the params again
-            setTimeout(() => doproduce(p, topic, message, key, partition, stalls), 500)
+            stalls++
+            setTimeout(() => doproduce(p, topic, message, key, partition, stalls), backoffTime(stalls))
           } else {
             _deferredMsgs--
             return reject(err)
