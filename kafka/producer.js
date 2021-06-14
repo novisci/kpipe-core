@@ -31,6 +31,7 @@ async function _connect ({ brokers, debug, ...options }) {
     'client.id': 'kpipe',
     'metadata.broker.list': brokers,
     'enable.idempotence': true,
+    'linger.ms': 1000,
     ...options
   }
 

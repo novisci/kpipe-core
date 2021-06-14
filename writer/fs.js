@@ -7,6 +7,9 @@ module.exports = function (options) {
   return (fn) => {
     const p = path.join(prefix, fn)
 
+    // Make sure the path exists
+    fs.mkdirSync(path.dirname(p), { recursive: true })
+
     console.info(`WRITE FS Path: ${p}`)
     return fs.createWriteStream(p)
   }
