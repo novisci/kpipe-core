@@ -19,7 +19,7 @@ module.exports = function (options) {
       Bucket: bucket,
       Key: path.join(prefix, key)
     }
-    console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key}`)
+    !options.quiet && console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     const request = s3.getObject(params)
     const stream = request.createReadStream()

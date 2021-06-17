@@ -116,7 +116,7 @@ module.exports = function (options) {
       Bucket: bucket,
       Key: path.join(prefix, key)
     }
-    console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key} (CHUNKED)`)
+    !options.quiet && console.info(`READ S3 URL: s3://${params.Bucket}/${params.Key} (CHUNKED)`)
 
     // let nReqs = 0
     let initialized = false
@@ -158,7 +158,7 @@ module.exports = function (options) {
           type: 'readsize',
           size: BigInt(length)
         })
-        console.error(`Object size: ${length} (${(length/(1024*1024)).toFixed(2).toLocaleString()} MB)`)
+        !options.quiet && console.info(`Object size: ${length} (${(length/(1024*1024)).toFixed(2).toLocaleString()} MB)`)
         chunkArray = createChunkRequests(length)
         console.debug(chunkArray)
         bufferStatus()

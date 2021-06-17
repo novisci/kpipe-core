@@ -41,7 +41,7 @@ module.exports = function (options) {
 
     let nRows = 0
 
-    console.info(`READ RANDOM ${width}x${length}`)
+    !options.quiet && console.info(`READ RANDOM ${width}x${length}`)
 
     let stream = new Readable({
       read: (count) => {

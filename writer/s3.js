@@ -50,9 +50,7 @@ module.exports = function (options) {
       params.SSEKMSKeyId = keyid
     }
 
-    if (!options.quiet) {
-      console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
-    }
+    !options.quiet && console.info(`WRITE S3 URL: s3://${params.Bucket}/${params.Key}`)
 
     s3.upload(params, {
       queueSize,

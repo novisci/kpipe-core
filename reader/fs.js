@@ -7,7 +7,7 @@ module.exports = function (options) {
   return (fn) => {
     const p = path.join(prefix, fn)
 
-    console.info(`READ FS Path: ${p}`)
+    !options.quiet && console.info(`READ FS Path: ${p}`)
     const stream = fs.createReadStream(p)
 
     fs.stat(p, { bigint: true }, (err, stats) => {

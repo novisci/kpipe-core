@@ -8,7 +8,7 @@ function backoffTime (retries) {
   return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS)
 }
 
-module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) {
+module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey, quiet }) {
   brokers = brokers || 'localhost:9092'
   objectMode = typeof objectMode === 'undefined' ? false : !!objectMode
 
@@ -18,7 +18,7 @@ module.exports = function ({ brokers, debug, objectMode, producerOpts, fnKey }) 
     if (!topic) {
       throw Error('topic is required in KafkaProducer.send()')
     }
-    console.info(`WRITE Kafka Topic: ${topic}`)
+    (!quiet || debug) && console.info(`WRITE Kafka Topic: ${topic}`)
 
     const _writeObj = (obj, enc, cb) => {
       if (Buffer.isBuffer(obj)) {

@@ -24,7 +24,7 @@ function topicConf (topic, seek) {
  *  fullMessage - true/false push entire kafka message (as json), not just its value (default false)
  *  debug - true/false enable debug logs from node-rdkafka consumer
  */
-module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, timeout, fullMessage, debug }) {
+module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, timeout, fullMessage, debug, quiet }) {
   brokers = brokers || 'localhost:9092'
   chunkSize = chunkSize || 16
   closeAtEnd = typeof closeAtEnd !== 'undefined' ? closeAtEnd : true
@@ -35,7 +35,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
   return (topic, position) => {
     position = position || {}
 
-    console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`)
+    (!quiet || debug) && console.info(`READ Kafka Topic (chunked): ${topic}/${groupid} ${JSON.stringify(position)}`)
 
     let nPushed = 0
     let isEnded = false
@@ -76,7 +76,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
 
         if (messages.length === 0) {
           if (timeout && (Date.now() - lastMsgTime) > timeout) {
-            console.info('Consumer timeout expired, closing stream...')
+            (!quiet || debug) && console.info('Consumer timeout expired, closing stream...')
             endStream()
           } else {
             setTimeout(() => consume(), 100)
@@ -125,7 +125,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
 
         // Check for end of parition (if closeAtEnd is true) and end consumption
         if (closeAtEnd && (typeof endOfPartition === 'number') && lastMsg.offset >= endOfPartition - 1) {
-          console.info('End of partition, closing...')
+          (!quiet || debug) && console.info('End of partition, closing...')
           endStream()
           return false
         }
@@ -133,7 +133,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         // If position.count is specified, end consumption when we've consumed the
         //  required amount
         if (position.count && nPushed >= position.count) {
-          console.info('KAFKA: reached end')
+          (!quiet || debug) && console.info('KAFKA: reached end')
           endStream()
           return false
         }
@@ -198,7 +198,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
           if (err) {
             console.error(err)
           }
-          console.info('Consumer disconnected')
+          (!quiet || debug) && console.info('Consumer disconnected')
           cb(err)
         })
       } else {
@@ -255,23 +255,23 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
         // If this throws the stream is invalid
         const off = topicConf(topic, position)
         if (off) {
-          console.info('CONSUMER assign: ', off)
+          (!quiet || debug) && console.info('CONSUMER assign: ', off)
           consumer.queryWatermarkOffsets(topic, off.partition, 1000, (err, marks) => {
             if (err) {
               stream.emit('error', err)
               return
             }
             endOfPartition = marks.highOffset
-            console.info('End of partition: ' + endOfPartition)
+            (!quiet || debug) && console.info('End of partition: ' + endOfPartition)
             if (closeAtEnd && endOfPartition <= off.offset) {
-              console.info('Partition does not contain offset and closeAtEnd is set -- ending stream')
+              (!quiet || debug) && console.info('Partition does not contain offset and closeAtEnd is set -- ending stream')
               endStream()
               return
             }
             consumer.assign([off])
           })
         } else {
-          console.info('CONSUMER subscribe: ', topic)
+          (!quiet || debug) && console.info('CONSUMER subscribe: ', topic)
           consumer.subscribe([topic])
           installSigintTerminate()
         }
