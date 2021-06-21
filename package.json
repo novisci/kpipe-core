@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.863.0",
-    "node-rdkafka": "^2.9.1",
+    "node-rdkafka": "^2.10.1",
     "uid-safe": "^2.1.5"
   }
 }
