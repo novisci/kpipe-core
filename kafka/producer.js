@@ -30,8 +30,8 @@ async function _connect ({ brokers, debug, ...options }) {
   const opts = {
     'client.id': 'kpipe',
     'metadata.broker.list': brokers,
-    'enable.idempotence': true,
-    'linger.ms': 1000,
+    // 'enable.idempotence': true,
+    'linger.ms': 2000,
     ...options
   }
 
