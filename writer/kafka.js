@@ -1,8 +1,8 @@
 const { Writable } = require('stream')
 const producer = require('../kafka/producer')
 
-const MAX_RETRIES = 5
-const MAX_WAITMS = 10000
+const MAX_RETRIES = 15
+const MAX_WAITMS = 30000
 
 function backoffTime (retries) {
   return Math.min(Math.pow(2, retries) * 100, MAX_WAITMS)
