@@ -1,5 +1,6 @@
 const { KafkaConsumer } = require('node-rdkafka')
 const { Readable } = require('stream')
+const globalOpts = require('../kafka/global-opts')
 
 function topicConf (topic, seek) {
   if (!seek || typeof seek.partition === 'undefined') {
@@ -211,11 +212,12 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
       'metadata.broker.list': brokers,
       'group.id': groupid,
       'enable.auto.commit': false,
+      'socket.keepalive.enable': true,
       // 'message.timeout.ms': 10000, (?? producer only)
       // 'auto.commit.interval.ms': 15,
-      'socket.keepalive.enable': true
       // 'debug': 'consumer,cgrp,topic,fetch',
-      // 'enable.partition.eof': true
+      // 'enable.partition.eof': true,
+      ...globalOpts.consumer
     }
 
     if (debug) {
@@ -261,7 +263,7 @@ module.exports = function ({ brokers, groupid, commit, closeAtEnd, chunkSize, ti
               stream.emit('error', err)
               return
             }
-            endOfPartition = marks.highOffset
+            endOfPartition = marks.highOffset;
             (!quiet || debug) && console.info('End of partition: ' + endOfPartition)
             if (closeAtEnd && endOfPartition <= off.offset) {
               (!quiet || debug) && console.info('Partition does not contain offset and closeAtEnd is set -- ending stream')

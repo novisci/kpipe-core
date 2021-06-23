@@ -1,4 +1,5 @@
 const { AdminClient } = require('node-rdkafka')
+const globalOpts = require('./global-opts')
 
 const TIMEOUT = 1000
 
@@ -19,6 +20,10 @@ function KafkaAdmin (options) {
 }
 
 KafkaAdmin.prototype.createTopic = function (topic, nParts, nReplicas, options) {
+  const topicConfig = {
+    ...globalOpts.topic,
+    ...options
+  }
   return new Promise((resolve, reject) => {
     this._client.createTopic({
       topic,

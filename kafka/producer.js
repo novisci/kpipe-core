@@ -3,6 +3,7 @@
  */
 const { Producer, CODES } = require('node-rdkafka')
 const ErrorCode = CODES.ERRORS
+const globalOpts = require('./global-opts')
 
 let producer = null
 let producerReady = false
@@ -30,8 +31,10 @@ async function _connect ({ brokers, debug, ...options }) {
   const opts = {
     'client.id': 'kpipe',
     'metadata.broker.list': brokers,
-    // 'enable.idempotence': true,
-    'linger.ms': 2000,
+    // 'enable.idempotence': true, // Don't set this (high-CPU)
+    // 'linger.ms': 2000,
+    // 'compression.codec': globalOpts.compressionType
+    ...globalOpts.producer,
     ...options
   }
 
